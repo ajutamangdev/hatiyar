@@ -1,7 +1,14 @@
 [project]
 name = "pysecfw"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pluggy>=1.6.0",
+    "pre-commit>=4.3.0",
+    "prompt-toolkit>=3.0.52",
+    "pydantic>=2.12.0",
+    "rich>=14.2.0",
+    "virtualenv>=20.35.1",
+]

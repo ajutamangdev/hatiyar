@@ -1,0 +1,9 @@
+# Miscellaneous and Auxiliary Modules
+
+modules:
+  - id: hello_world
+    name: "Hello World"
+    description: "Minimal test module that prints a message"
+    version: "1.0"
+    category: "misc"
+    module_path: "misc.hello_world"
