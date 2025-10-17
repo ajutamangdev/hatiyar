@@ -1,14 +1,17 @@
 [project]
 name = "pysecfw"
 version = "0.1.0"
-description = ""
+description = "Minimal, modular Python framework for security research and CVE exploration"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
+    "mypy>=1.18.2",
     "pluggy>=1.6.0",
     "pre-commit>=4.3.0",
     "prompt-toolkit>=3.0.52",
     "pydantic>=2.12.0",
+    "pyyaml>=6.0.1",
+    "requests>=2.32.0",
     "rich>=14.2.0",
     "virtualenv>=20.35.1",
 ]

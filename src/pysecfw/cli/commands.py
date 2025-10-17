@@ -38,6 +38,7 @@ def handle_command(command: str, console) -> None:
         "cls": lambda: clear_screen(console),
         "list": lambda: handle_list(args, console),
         "ls": lambda: handle_list(args, console),
+        "reload": lambda: handle_reload(console),
         "search": lambda: handle_search(args, console),
         "info": lambda: handle_info(args, console),
         "use": lambda: handle_use(args, console),
@@ -72,6 +73,7 @@ def show_help(console) -> None:
         "  run/exploit            - Execute the loaded module\n"
         "  back                   - Unload current module\n\n"
         "[yellow]Utility:[/yellow]\n"
+        "  reload                 - Reload modules from YAML files\n"
         "  clear                  - Clear the console\n"
         "  exit/quit              - Exit pysecfw\n\n"
     )
@@ -85,6 +87,17 @@ def clear_screen(console) -> None:
     console.print(
         "Type [bold cyan]help[/bold cyan] for available commands or [cyan]ls[/cyan] to explore.\n"
     )
+
+
+def handle_reload(console) -> None:
+    """Reload module registries from YAML without restarting the CLI"""
+    global manager
+    manager = ModuleManager()
+    stats = manager.get_stats()
+    console.print(
+        f"[green]Reloaded modules from YAML.[/green] Total: {stats.get('total_modules', 0)}"
+    )
+    console.print("[dim]Tip: run 'ls cve' to list CVE modules[/dim]")
 
 
 def handle_list(args: List[str], console) -> None:
