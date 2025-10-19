@@ -39,7 +39,7 @@ def start_shell() -> None:
     """Start the interactive shell session"""
     completer = WordCompleter(COMMANDS, ignore_case=True)
     history = InMemoryHistory()
-    session = PromptSession(completer=completer, history=history)
+    session: PromptSession[str] = PromptSession(completer=completer, history=history)
 
     console.print(WELCOME_MESSAGE)
 
