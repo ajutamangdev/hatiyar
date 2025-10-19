@@ -1,14 +1,14 @@
 import sys
 from pathlib import Path
-from pysecfw.cli.shell import start_shell
 
-# Add src directory to path to allow absolute imports
 src_path = Path(__file__).parent.parent
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
+sys.path.insert(0, str(src_path))
+
+from pysecfw.cli.shell import start_shell  # noqa: E402
 
 
-def main():
+def main() -> None:
+    """Start the pysecfw interactive shell"""
     start_shell()
 
 

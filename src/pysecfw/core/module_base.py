@@ -130,17 +130,17 @@ class CVEModule(ModuleBase):
 
     MODULE_TYPE = ModuleType.CVE
 
-    # CVE-specific metadata
+    # CVE-specific metadata (all optional)
     CVE: str = ""
-    CVSS_SCORE: float = 0.0
-    CVSS_VECTOR: str = ""
-    DISCLOSURE_DATE: str = ""
+    CVSS_SCORE: Optional[float] = None
+    CVSS_VECTOR: Optional[str] = None
+    DISCLOSURE_DATE: Optional[str] = None
     AFFECTED_VERSIONS: List[str] = []
     PATCHED_VERSIONS: List[str] = []
-    RANK: str = "normal"  # excellent, great, good, normal, low
+    RANK: Optional[str] = None  # excellent, great, good, normal, low
     REFERENCES: List[str] = []
     TAGS: List[str] = []
-    CWE: str = ""
+    CWE: Optional[str] = None
 
     @abstractmethod
     def check(self) -> bool:
@@ -167,23 +167,9 @@ class CVEModule(ModuleBase):
         if not self.validate_options():
             return {"success": False, "error": "Invalid options"}
 
-        console.print(
-            f"[cyan]🎯 Targeting {self.options.get('RHOST', 'N/A')}...[/cyan]\n"
-        )
+        console.print(f"[cyan]Targeting {self.options.get('RHOST', 'N/A')}...[/cyan]\n")
 
-        # Step 1: Vulnerability check
-        console.print("[bold]Step 1: Vulnerability Check[/bold]")
-        if not self.check():
-            return {
-                "success": False,
-                "vulnerable": False,
-                "error": "Target does not appear vulnerable",
-            }
-
-        console.print("[green]✓ Target appears vulnerable![/green]\n")
-
-        # Step 2: Exploitation
-        console.print("[bold]Step 2: Exploitation[/bold]")
+        console.print("[bold]Exploitation[/bold]")
         return self.exploit()
 
 
