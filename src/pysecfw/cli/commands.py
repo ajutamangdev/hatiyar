@@ -3,7 +3,7 @@
 from typing import Optional, List, Dict, Any
 from rich.table import Table
 from rich.panel import Panel
-from core.modules import ModuleManager
+from pysecfw.core.modules import ModuleManager
 
 # Global state
 manager = ModuleManager()
