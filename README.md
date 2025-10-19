@@ -58,7 +58,7 @@ uv sync
 #### 4. Run the Framework
 
 ```bash
-python main.py
+python3 src/pysecfw/main.py
 ```
 
 ---
@@ -69,10 +69,10 @@ python main.py
 
 This tool is provided for **educational and authorized security testing purposes only**. Users must:
 
-- ✅ Only test systems they own or have explicit written permission to test
-- ✅ Comply with all applicable local, state, and federal laws
-- ✅ Use responsibly and ethically
-- ❌ Never use for malicious purposes or unauthorized access
+- Only test systems they own or have explicit written permission to test
+- Comply with all applicable local, state, and federal laws
+- Use responsibly and ethically
+- Never use for malicious purposes or unauthorized access
 
 The developers assume no liability for misuse of this software.
 
