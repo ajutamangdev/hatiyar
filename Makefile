@@ -1,4 +1,4 @@
-.PHONY: help shell check format lint test clean install
+.PHONY: help shell check serve format lint test clean install
 
 # Default target - show help
 .DEFAULT_GOAL := help
@@ -20,13 +20,13 @@ help: ## Display this help message
 ##@ Development
 
 shell: ## Launch the interactive pysecfw shell
-	$(PYTHON) $(SRC_DIR)/main.py
+	$(PYTHON) $(SRC_DIR)/main.py shell
 
-run: shell ## Alias for 'shell' target
+serve: ## Audit using the web interface
+	$(PYTHON) $(SRC_DIR)/main.py serve
 
 install: ## Install dependencies using uv
 	uv sync
-
 
 ##@ Code Quality
 
@@ -54,10 +54,7 @@ clean: ## Remove build artifacts and cache files
 	find . -type d -name ".ruff_cache" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
-
-clean-all: clean ## Remove all build artifacts and virtual environment
-	rm -rf $(VENV_DIR)
-	rm -rf dist/ build/
+	rm -r dist/ build/ 2>/dev/null || true
 
 ##@ Information
 
