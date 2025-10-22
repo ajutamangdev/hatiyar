@@ -247,11 +247,17 @@ class ModuleManager:
                 "source": source_file,  # Track which YAML file this came from
             }
 
+            # Add CVE ID if present
+            if "cve_id" in mod_def:
+                metadata["cve_id"] = mod_def.get("cve_id", "")
+                metadata["cve"] = mod_def.get(
+                    "cve_id", ""
+                )  # Also store as 'cve' for backward compatibility
+
             # Add CVE-specific fields
             if "cvss_score" in mod_def:
                 metadata.update(
                     {
-                        "cve": module_id,
                         "cvss": mod_def.get("cvss_score", 0.0),
                         "rank": mod_def.get("rank", "normal"),
                         "disclosure_date": mod_def.get("disclosure_date", ""),
