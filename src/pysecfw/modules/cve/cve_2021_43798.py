@@ -164,6 +164,5 @@ class Module(CVEModule):
 
         return {
             "success": False,
-            "vulnerable": True,
             "error": "Unable to read requested file with available plugins",
         }
