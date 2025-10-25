@@ -27,7 +27,6 @@ Ready to dive in? Check out:
 - **[Installation Guide](/introduction/installation/)** - 3-minute setup with uv
 - **[Quick Start](/introduction/quick-start/)** - Your first exploit in 5 minutes
 - **[Usage Guide](/guides/usage/)** - Complete command reference
-- **[CVE Modules](/modules/cve-exploits/)** - Available exploits and examples
 
 ## Security Disclaimer
 

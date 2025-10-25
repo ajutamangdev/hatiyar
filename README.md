@@ -12,7 +12,7 @@ Do **not** use this software on systems you do not own or do not have explicit w
 
 For comprehensive guides, quick start and usage examples, visit the full documentation:
 
-**[pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
+**[Pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
 
 ---
 
