@@ -1,11 +1,3 @@
----
-name: Pull Request
-about: Submit a new feature, bug fix, or improvement
-title: ''
-labels: ''
-assignees: ''
----
-
 ## Description
 Describe what this PR does and why. Include any relevant context or references to related issues.
 
