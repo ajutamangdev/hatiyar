@@ -1,0 +1,102 @@
+---
+title: Welcome to pysecfw
+description: A modular Python security framework for penetration testing and exploit development. Built for security professionals, developers, and red teamers.
+template: splash
+hero:
+  tagline: Python security toolkit for penetration testing.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Get Started in 5 Minutes
+      link: /introduction/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/ajutamangdev/pysecfw
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Live Example: In 30 Seconds
+
+```bash
+# Start the interactive shell
+$ pysecfw
+
+# Search for vulnerability
+pysecfw> search exploit-name
+Found 2 modules:
+  - CVE-XXXX-XXXX [CRITICAL] Exploit
+
+# Use and configure exploit
+pysecfw> use CVE-XXXX-XXXX
+pysecfw> show options
+pysecfw> set RHOST target.internal
+pysecfw> set RPORT 80
+
+# Execute
+pysecfw> run
+[*] Exploiting target.internal:80
+[+] Successfully exploit
+```
+
+## Choose Your Workflow
+
+<CardGrid>
+
+  <Card title="Interactive Hunter" icon="open-book">
+    **Metasploit-like shell experience**
+    
+    ```bash
+    pysecfw
+    pysecfw> ls cve
+    pysecfw> use cve.cve_XXXX_XXXX
+    pysecfw> set RHOST target
+    pysecfw> set RPORT 80
+    pysecfw> run
+    ```
+    
+    Perfect for: Live engagements, exploration, learning
+  </Card>
+
+    <Card title="CLI Power User" icon="rocket">
+    **One-liners for rapid testing**
+    
+    ```bash
+    pysecfw run CVE-XXXX-XXXX \
+      --set RHOST=target.com \
+      --set RPORT=80
+    ```
+    
+    Perfect for: Automation, scripting, CI/CD pipelines
+  </Card>
+</CardGrid>
+
+## Quick Navigation
+
+<CardGrid>
+  <Card title="Installation & Setup" icon="rocket">
+    Get pysecfw running in minutes with pip, uv, or Docker.
+    
+    **Time:** 2 minutes  
+    [Install Now →](/introduction/installation/)
+  </Card>
+  <Card title="5-Minute Quickstart" icon="document">
+    Run your first exploit and understand the core concepts.
+    
+    **Time:** 5 minutes  
+    [Start Tutorial →](/introduction/quick-start/)
+  </Card>
+</CardGrid>
+
+## Community & Support
+
+- **[GitHub Repository](https://github.com/ajutamangdev/pysecfw)** - Source code, issues, discussions
+- **[Issue Tracker](https://github.com/ajutamangdev/pysecfw/issues)** - Report bugs, request features
+- **[Discussions](https://github.com/ajutamangdev/pysecfw/discussions)** - Ask questions, share knowledge
+- **[Contributing Guide](/contribution/guidelines/)** - How to add modules and improve pysecfw
+
+---
+
