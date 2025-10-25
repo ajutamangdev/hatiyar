@@ -8,13 +8,24 @@ Do **not** use this software on systems you do not own or do not have explicit w
 
 ---
 
+## Documentation
+
+For comprehensive guides, quick start and usage examples, visit the full documentation:
+
+**[pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
+
+---
+
 ## Overview
 
-**pysecfw** is a minimal, modular Python framework for exploring security modules and CVEs (Common Vulnerabilities and Exposures).
+**pysecfw** is a python security toolkit for penetration testing.
 
-Inspired by frameworks like [Metasploit](https://www.metasploit.com/), it provides:
-- **Interactive CLI (REPL)** for exploring and running security modules
-- **Modular plugin architecture** for CVE/exploit modules
+It provides :
+- **Interactive CLI (REPL)** for exploring and executing security modules
+- **CVE Exploit Modules** for testing known vulnerabilities
+- **Enumeration Tools** for cloud, network and system reconnaissance
+- **Cloud Compliance Auditing** (coming soon) via web dashboard
+- **Modular plugin architecture** for easy extension
 
 > **Future roadmap:** Additional CVE modules, enhanced security tools, web UI, automation APIs, and integration capabilities
 ---

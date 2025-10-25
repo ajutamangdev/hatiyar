@@ -1,7 +1,7 @@
 [project]
 name = "pysecfw"
 version = "0.1.0"
-description = "Minimal, modular Python framework for security research, compliance audit and CVE exploration"
+description = "python security toolkit for penetration testing."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "pre-commit>=4.3.0",
     "prompt-toolkit>=3.0.52",
     "pydantic>=2.12.0",
+    "pytest>=8.4.2",
     "pyyaml>=6.0.1",
     "requests>=2.32.0",
     "rich>=14.2.0",
