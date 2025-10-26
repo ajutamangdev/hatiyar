@@ -19,28 +19,30 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Live Example: In 30 Seconds
+## Live Demo
 
-```bash
-# Start the interactive shell
-$ pysecfw
+![pysecfw demo](../../assets/pysecfw.gif)
 
-# Search for vulnerability
-pysecfw> search exploit-name
-Found 2 modules:
-  - CVE-XXXX-XXXX [CRITICAL] Exploit
+---
 
-# Use and configure exploit
-pysecfw> use CVE-XXXX-XXXX
-pysecfw> show options
-pysecfw> set RHOST target.internal
-pysecfw> set RPORT 80
+## Quick Start Guides
 
-# Execute
-pysecfw> run
-[*] Exploiting target.internal:80
-[+] Successfully exploit
-```
+<CardGrid>
+  <Card title="Installation & Setup" icon="rocket">
+    Get pysecfw running in minutes with uv.
+    
+    **Time:** 2 minutes  
+    [Install Now →](/pysecfw/introduction/installation/)
+  </Card>
+  <Card title="5-Minute Quickstart" icon="document">
+    Run your first exploit and understand core concepts.
+    
+    **Time:** 5 minutes  
+    [Start Tutorial →](/pysecfw/introduction/quick-start/)
+  </Card>
+</CardGrid>
+
+---
 
 ## Choose Your Workflow
 
@@ -61,7 +63,7 @@ pysecfw> run
     Perfect for: Live engagements, exploration, learning
   </Card>
 
-    <Card title="CLI Power User" icon="rocket">
+  <Card title="CLI Power User" icon="rocket">
     **One-liners for rapid testing**
     
     ```bash
@@ -74,22 +76,7 @@ pysecfw> run
   </Card>
 </CardGrid>
 
-## Quick Navigation
-
-<CardGrid>
-  <Card title="Installation & Setup" icon="rocket">
-    Get pysecfw running in minutes with pip, uv, or Docker.
-    
-    **Time:** 2 minutes  
-    [Install Now →](/pysecfw/introduction/installation/)
-  </Card>
-  <Card title="5-Minute Quickstart" icon="document">
-    Run your first exploit and understand the core concepts.
-    
-    **Time:** 5 minutes  
-    [Start Tutorial →](/pysecfw/introduction/quick-start/)
-  </Card>
-</CardGrid>
+---
 
 ## Community & Support
 

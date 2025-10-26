@@ -1,18 +1,18 @@
-# pysecfw — Python Security Framework
+# Pysecfw
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+> A modular Python security toolkit for penetration testing, vulnerability assessment, and security research.
 
 ⚠️ **IMPORTANT:** pysecfw is intended for **educational, research, and defensive security use only**.  
 Do **not** use this software on systems you do not own or do not have explicit written permission to test. Misuse may result in civil or criminal liability.
 
 ---
 
-## Documentation
+## Quick Demo
 
-For comprehensive guides, quick start and usage examples, visit the full documentation:
-
-**[Pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
+![pysecfw demo](/docs/src/assets/pysecfw.gif)
 
 ---
 
@@ -20,27 +20,30 @@ For comprehensive guides, quick start and usage examples, visit the full documen
 
 **pysecfw** is a python security toolkit for penetration testing.
 
-It provides :
-- **Interactive CLI (REPL)** for exploring and executing security modules
-- **CVE Exploit Modules** for testing known vulnerabilities
-- **Enumeration Tools** for cloud, network and system reconnaissance
-- **Cloud Compliance Auditing** (coming soon) via web dashboard
-- **Modular plugin architecture** for easy extension
+It provides:
+- **Interactive CLI (REPL)** - Metasploit-like shell for exploring and executing security modules
+- **CVE Exploit Modules** - Pre-built, tested exploits for known vulnerabilities
+- **Enumeration Tools** - Cloud, network and system reconnaissance capabilities
+- **Modular Architecture** - Easy extension with custom Python modules and YAML registration
+- **Cloud Compliance Auditing** - (coming soon) via web dashboard
 
 > **Future roadmap:** Additional CVE modules, enhanced security tools, web UI, automation APIs, and integration capabilities
+
 ---
 
-## Installation
+## Quick Start
+
+Get pysecfw running in minutes:
 
 ### Prerequisites
 
-Before installing pysecfw, ensure you have the following installed on your system:
+- **[Python 3.9+](https://www.python.org/downloads/)** - Modern Python with type hints support
+- **[git](https://git-scm.com/downloads)** - Version control for cloning the repository
+- **[uv](https://docs.astral.sh/uv/getting-started/installation/)** - Fast Python package installer
 
-- **[Python 3.9+](https://www.python.org/downloads/)** : Required for compatibility with modern Python features
-- **[git](https://git-scm.com/downloads)** : Needed to clone the repository from version control
-- **[uv](https://docs.astral.sh/uv/getting-started/installation/)** : Fast Python package installer and resolver
+### Installation
 
-### Installation Steps
+### Installation
 
 #### 1. Clone the Repository
 
@@ -74,7 +77,13 @@ python3 src/pysecfw/main.py
 
 ---
 
+## 📖 Full Documentation
 
+For comprehensive guides, tutorials, API documentation, and usage examples, visit the full documentation:
+
+**[Pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
+
+---
 
 ## Security Disclaimer
 
@@ -89,13 +98,13 @@ The developers assume no liability for misuse of this software.
 
 ---
 
+## Support & Community
 
-## Support
-
-For issues, questions, or contributions, please visit the [GitHub Issues](https://github.com/ajutamangdev/pysecfw/issues) page.
+- **[GitHub Repository](https://github.com/ajutamangdev/pysecfw)** - Source code, issues, discussions
+- **[Issue Tracker](https://github.com/ajutamangdev/pysecfw/issues)** - Report bugs, request features
+- **[Discussions](https://github.com/ajutamangdev/pysecfw/discussions)** - Ask questions, share knowledge
 
 ---
-
 
 ## License
 
