@@ -1,0 +1,10 @@
+# AWS Cloud Module Registry
+
+modules:
+  - id: ec2_enumeration
+    name: "EC2 Enumeration"
+    module_path: "cloud.aws.ec2"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive EC2 enumeration including instances, security groups, volumes, snapshots, and AMIs with security assessment"

@@ -31,6 +31,32 @@ wheels = [
 ]
 
 [[package]]
+name = "boto3-stubs"
+version = "1.40.59"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore-stubs" },
+    { name = "types-s3transfer" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/36/92108a11eb151036867fcf09ed604dbcc172aa08411b9e752021bd276c7b/boto3_stubs-1.40.59.tar.gz", hash = "sha256:0791851ecfd465c5d76bd316f48c0113811c11c89521a48c5318d8a25b6fe8dd", size = 101012 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/15/01e5409e748f810dd379bc6d632793a68a3cfcd0d8e0e0404ebd34749e8e/boto3_stubs-1.40.59-py3-none-any.whl", hash = "sha256:8f2e623d9960d63ad4231a5991c25c92b145240e6b798d5045f79ff0e2807f8f", size = 69744 },
+]
+
+[[package]]
+name = "botocore-stubs"
+version = "1.40.59"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-awscrt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9a/f5/8a2874a9a426e98df3aa68da59467a8b691c3dfc793c7f1433bc3ea8b602/botocore_stubs-1.40.59.tar.gz", hash = "sha256:53611e55b64f7632ef9f7781d896f126926868cb182d181b95b15b28f8d777a8", size = 42219 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/cc/951184f1862153bd15f15753d9340103e11f8f9836c37149a6bd9ccbeb5c/botocore_stubs-1.40.59-py3-none-any.whl", hash = "sha256:0cfbb0b03597cf1f33d4fc3a2f0ec4d92de5773177f858406f86f01f454d09ad", size = 66541 },
+]
+
+[[package]]
 name = "certifi"
 version = "2025.10.5"
 source = { registry = "https://pypi.org/simple" }
@@ -741,6 +767,7 @@ name = "pysecfw"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "boto3-stubs" },
     { name = "fastapi" },
     { name = "jinja2" },
     { name = "mypy" },
@@ -761,6 +788,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto3-stubs", specifier = ">=1.40.59" },
     { name = "fastapi", specifier = ">=0.119.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "mypy", specifier = ">=1.18.2" },
@@ -997,6 +1025,15 @@ wheels = [
 ]
 
 [[package]]
+name = "types-awscrt"
+version = "0.28.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/65/f92debc7c9ff9e6e51cf1495248f0edd2fa7123461acf5d07ec1688d8ac1/types_awscrt-0.28.2.tar.gz", hash = "sha256:4349b6fc7b1cd9c9eb782701fb213875db89ab1781219c0e947dd7c4d9dcd65e", size = 17438 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/23/535c2b3492fb31286a6adad45af3367eba3c23edc2fa24824d9526626012/types_awscrt-0.28.2-py3-none-any.whl", hash = "sha256:d08916fa735cfc032e6a8cfdac92785f1c4e88623999b224ea4e6267d5de5fcb", size = 41929 },
+]
+
+[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20250915"
 source = { registry = "https://pypi.org/simple" }
@@ -1015,6 +1052,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/36/27/489922f4505975b11de2b5ad07b4fe1dca0bca9be81a703f26c5f3acfce5/types_requests-2.32.4.20250913.tar.gz", hash = "sha256:abd6d4f9ce3a9383f269775a9835a4c24e5cd6b9f647d64f88aa4613c33def5d", size = 23113 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/20/9a227ea57c1285986c4cf78400d0a91615d25b24e257fd9e2969606bdfae/types_requests-2.32.4.20250913-py3-none-any.whl", hash = "sha256:78c9c1fffebbe0fa487a418e0fa5252017e9c60d1a2da394077f1780f655d7e1", size = 20658 },
+]
+
+[[package]]
+name = "types-s3transfer"
+version = "0.14.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8e/9b/8913198b7fc700acc1dcb84827137bb2922052e43dde0f4fb0ed2dc6f118/types_s3transfer-0.14.0.tar.gz", hash = "sha256:17f800a87c7eafab0434e9d87452c809c290ae906c2024c24261c564479e9c95", size = 14218 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/c3/4dfb2e87c15ca582b7d956dfb7e549de1d005c758eb9a305e934e1b83fda/types_s3transfer-0.14.0-py3-none-any.whl", hash = "sha256:108134854069a38b048e9b710b9b35904d22a9d0f37e4e1889c2e6b58e5b3253", size = 19697 },
 ]
 
 [[package]]

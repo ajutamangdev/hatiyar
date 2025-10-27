@@ -105,7 +105,13 @@ def handle_list(args: List[str], console) -> None:
     if not args:
         show_categories(console)
     else:
-        show_category_modules(args[0].lower(), console)
+        category_or_namespace = args[0].lower()
+
+        # Check if it's a namespace (e.g., cloud.aws)
+        if category_or_namespace in manager.namespaces:
+            show_namespace_modules(category_or_namespace, console)
+        else:
+            show_category_modules(category_or_namespace, console)
 
 
 def show_categories(console) -> None:
@@ -133,6 +139,36 @@ def show_category_modules(category: str, console) -> None:
         return
 
     table = create_module_table(category, modules)
+    console.print(table)
+    console.print(
+        f"\n[dim]Use: [cyan]use {modules[0]['path']}[/cyan] to load a module[/dim]"
+    )
+
+
+def show_namespace_modules(namespace: str, console) -> None:
+    """Display modules under a namespace (e.g., cloud.aws)"""
+    modules = manager.get_namespace_modules(namespace)
+
+    if not modules:
+        console.print(f"[red]No modules found in namespace:[/red] {namespace}")
+        return
+
+    # Extract the namespace name (e.g., "AWS" from "cloud.aws")
+    namespace_parts = namespace.split(".")
+    namespace_name = (
+        namespace_parts[-1].upper() if namespace_parts else namespace.upper()
+    )
+
+    table = Table(title=f"{namespace_name} Modules ({len(modules)})")
+    table.add_column("#", style="dim", justify="right", width=4)
+    table.add_column("Module Path", style="cyan")
+    table.add_column("Name", style="green")
+    table.add_column("Description", style="dim")
+
+    for idx, m in enumerate(modules, 1):
+        desc = truncate_string(m.get("description", ""), 60)
+        table.add_row(str(idx), m["path"], m.get("name", "Unknown"), desc)
+
     console.print(table)
     console.print(
         f"\n[dim]Use: [cyan]use {modules[0]['path']}[/cyan] to load a module[/dim]"
@@ -318,6 +354,13 @@ def handle_use(args: List[str], console) -> None:
         return
 
     module_name = args[0]
+
+    # Check if it's a namespace (e.g., cloud.aws)
+    if module_name in manager.namespaces:
+        # Show submodules instead of loading
+        show_namespace_modules(module_name, console)
+        return
+
     active_module = manager.load_module(module_name)
 
     if active_module:
