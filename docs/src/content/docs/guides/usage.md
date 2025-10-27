@@ -1,11 +1,7 @@
 ---
-title: Usage
+title: Usage Guide
 description: Complete command reference for pysecfw
 ---
-
-# pysecfw Usage Guide
-
-## Overview
 
 pysecfw is a modular Python security framework for vulnerability assessment, exploitation, and security testing.
 

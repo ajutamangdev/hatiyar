@@ -27,9 +27,9 @@ export default defineConfig({
         {
           label: "Guides",
           items: [
-            { label: "Contribution", slug: "guides/contribution" },
-
             { label: "Usage Guide", slug: "guides/usage" },
+            { label: "AWS", slug: "guides/aws" },
+            { label: "Contribution", slug: "guides/contribution" },
           ],
         },
       ],

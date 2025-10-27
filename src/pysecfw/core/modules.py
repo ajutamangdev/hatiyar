@@ -66,6 +66,7 @@ class ModuleManager:
         self.cve_map: Dict[str, str] = {}
         self.metadata_cache: Dict[str, Dict[str, Any]] = {}
         self.categories: Dict[str, List[Dict[str, Any]]] = {}
+        self.namespaces: Dict[str, Dict[str, Any]] = {}
         self._errors: List[str] = []
 
         # Load all modules from YAML registries
@@ -103,6 +104,15 @@ class ModuleManager:
                 self._log(
                     f"Discovered registry: {yaml_file.relative_to(self.modules_path)}"
                 )
+
+            # Also look for .yaml files in nested subdirectories (for cloud/aws/, cloud/azure/, etc.)
+            for subdir in category_dir.iterdir():
+                if subdir.is_dir() and not subdir.name.startswith("__"):
+                    for yaml_file in subdir.glob("*.yaml"):
+                        registry_files.append(yaml_file)
+                        self._log(
+                            f"Discovered registry: {yaml_file.relative_to(self.modules_path)}"
+                        )
 
         return registry_files
 
@@ -234,6 +244,7 @@ class ModuleManager:
             module_id = mod_def.get("id", "")
             module_path = mod_def.get("module_path", "")
             category = mod_def.get("category", DEFAULT_CATEGORY)
+            is_namespace = mod_def.get("is_namespace", False)
 
             # Build metadata
             metadata = {
@@ -243,7 +254,9 @@ class ModuleManager:
                 "author": mod_def.get("author", "Unknown"),
                 "version": mod_def.get("version", "1.0"),
                 "category": category,
+                "subcategory": mod_def.get("subcategory", ""),
                 "type": self._infer_type_from_category(category),
+                "is_namespace": is_namespace,
                 "source": source_file,  # Track which YAML file this came from
             }
 
@@ -274,6 +287,10 @@ class ModuleManager:
                 return False
 
             self.metadata_cache[module_path] = metadata
+
+            # Track namespaces separately
+            if is_namespace:
+                self.namespaces[module_path] = metadata
 
             # Add to category index
             module_type = metadata["type"]
@@ -328,7 +345,7 @@ class ModuleManager:
         List all available modules, optionally filtered by category.
 
         Args:
-            category: Optional category filter (e.g., 'cve', 'enumeration', 'misc')
+            category: Optional category filter (e.g., 'cve', 'enumeration', 'misc', 'cloud')
 
         Returns:
             List of module metadata dictionaries
@@ -356,6 +373,11 @@ class ModuleManager:
                 if canonical_type == "auxiliary":
                     if module_category in ["misc", "auxiliary"]:
                         filtered.append(module)
+                # For cloud category, only show namespaces (top-level platforms)
+                elif canonical_type == "cloud" and module_category == "cloud":
+                    # Only include namespace modules (aws, azure, gcp) not submodules
+                    if module.get("is_namespace", False):
+                        filtered.append(module)
                 # For other categories, require exact match
                 elif module_category == category.lower():
                     filtered.append(module)
@@ -382,10 +404,40 @@ class ModuleManager:
         modules = self.categories.get(category, [])
 
         if subcategory:
-            filtered = [mod for mod in modules if subcategory in mod["path"].split(".")]
+            filtered = [
+                mod
+                for mod in modules
+                if subcategory in mod["path"].split(".")
+                and not mod.get("is_namespace", False)  # Exclude namespaces
+            ]
             return sorted(filtered, key=lambda x: x.get("name", ""))
 
         return sorted(modules, key=lambda x: x.get("name", ""))
+
+    def get_namespace_modules(self, namespace_path: str) -> List[Dict[str, Any]]:
+        """
+        Get all modules under a specific namespace.
+
+        Args:
+            namespace_path: Namespace path (e.g., 'cloud.aws')
+
+        Returns:
+            List of module metadata dictionaries under the namespace
+        """
+        # Check if it's a valid namespace
+        if namespace_path not in self.namespaces:
+            return []
+
+        # Get all modules that start with this namespace path
+        # but are not namespaces themselves
+        filtered = []
+        for path, metadata in self.metadata_cache.items():
+            if path.startswith(namespace_path + ".") and not metadata.get(
+                "is_namespace", False
+            ):
+                filtered.append(metadata)
+
+        return sorted(filtered, key=lambda x: x.get("name", ""))
 
     def load_module(self, path: str) -> Optional[Any]:
         """
