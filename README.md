@@ -40,8 +40,9 @@ Get pysecfw running in minutes:
 - **[Python 3.9+](https://www.python.org/downloads/)** - Modern Python with type hints support
 - **[git](https://git-scm.com/downloads)** - Version control for cloning the repository
 - **[uv](https://docs.astral.sh/uv/getting-started/installation/)** - Fast Python package installer
-
-### Installation
+- **build-essential** - C compiler and build tools for Makefile-based setup
+  - **Linux**: `sudo apt install build-essential` (Debian/Ubuntu) or `sudo dnf install gcc make` (Fedora/RHEL)
+  - **macOS**: `xcode-select --install` (Xcode Command Line Tools)
 
 ### Installation
 
@@ -52,28 +53,32 @@ git clone https://github.com/ajutamangdev/pysecfw.git
 cd pysecfw
 ```
 
-#### 2. Create and Activate Virtual Environment
-
-Using `uv` to create a virtual environment:
+#### 2. Set Up with Makefile (Recommended)
 
 ```bash
-uv venv
-source .venv/bin/activate  # On Linux/macOS
-# OR
-.venv\Scripts\activate     # On Windows
+make setup
 ```
 
-#### 3. Install Dependencies
+This will:
+- Create a virtual environment (`.venv`)
+- Install all dependencies using `uv sync`
+- Activate the environment automatically for subsequent commands
+
+#### 3. Verify Installation
 
 ```bash
-uv sync
+make info
 ```
 
 #### 4. Run the Framework
 
 ```bash
-python3 src/pysecfw/main.py
+make shell           # Interactive shell
+# OR
+make serve           # Web server
 ```
+
+> **For detailed installation instructions, alternative setup methods, and platform-specific guides, see the [Installation Guide](https://ajutamangdev.github.io/pysecfw/introduction/installation/).**
 
 ---
 
@@ -103,6 +108,7 @@ The developers assume no liability for misuse of this software.
 - **[GitHub Repository](https://github.com/ajutamangdev/pysecfw)** - Source code, issues, discussions
 - **[Issue Tracker](https://github.com/ajutamangdev/pysecfw/issues)** - Report bugs, request features
 - **[Discussions](https://github.com/ajutamangdev/pysecfw/discussions)** - Ask questions, share knowledge
+- **[Discord Community](https://discord.gg/V9HghE8V7M)** - Join our community server
 
 ---
 

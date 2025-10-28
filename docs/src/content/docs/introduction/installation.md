@@ -10,6 +10,10 @@ Before installing pysecfw, ensure you have the following:
 - **Python 3.9 or higher** - [Download Python](https://www.python.org/downloads/)
 - **git** - [Install git](https://git-scm.com/downloads/)
 - **uv** - [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+- **build-essential** (Linux only, for Makefile-based setup) - C compiler and build tools
+  - **Debian/Ubuntu**: `sudo apt install build-essential`
+  - **Fedora/RHEL**: `sudo dnf install gcc make`
+  - **Alpine**: `apk add build-base`
 
 ## Installation Steps
 
@@ -20,42 +24,84 @@ git clone https://github.com/ajutamangdev/pysecfw.git
 cd pysecfw
 ```
 
-### 2. Install with uv
+### 2. Set Up the Project
+
+Use the Makefile to set up the virtual environment and install dependencies:
 
 ```bash
-uv sync
+make setup
 ```
 
 This will:
-- Create a virtual environment
-- Install all dependencies
-- Set up the project in development mode
+- Create a virtual environment (`.venv`)
+- Install all dependencies with `uv sync`
+- Activate the environment
 
 ### 3. Verify Installation
 
-Using the full path:
+Check the project setup:
 
 ```bash
-python3 src/pysecfw/main.py --version
+make info
 ```
+
+This displays:
+- Python version (from virtual environment)
+- Tool versions (uv, mypy, ruff)
+- Project configuration
 
 ## Quick Start
 
-After installation, you can immediately start using pysecfw:
-
-```bash
-# Start the interactive shell with full path
-python3 src/pysecfw/main.py shell
-```
-
-## Using Makefile Commands
-
-For convenience, use the provided Makefile shortcuts:
+After setup, use the Makefile to launch pysecfw:
 
 ```bash
 make shell            # Launch interactive shell
 make serve            # Start web server
 make info             # Show project info
+```
+
+All commands automatically use the activated virtual environment.
+
+## Alternative Setup (Manual)
+
+If you prefer not to use Makefile, follow these steps:
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/ajutamangdev/pysecfw.git
+cd pysecfw
+```
+
+### 2. Create and Activate Virtual Environment
+
+Using `uv` to create a virtual environment:
+
+```bash
+uv venv
+source .venv/bin/activate  # On Linux/macOS
+# OR
+.venv\Scripts\activate     # On Windows
+```
+
+### 3. Install Dependencies
+
+```bash
+uv sync
+```
+
+### 4. Verify Installation
+
+```bash
+python3 src/pysecfw/main.py --version
+```
+
+### 5. Run the Framework
+
+```bash
+python3 src/pysecfw/main.py shell  # Interactive shell
+# OR
+python3 src/pysecfw/main.py serve  # Web server
 ```
 
 ## Platform-Specific Notes
@@ -65,12 +111,15 @@ make info             # Show project info
 Install system dependencies:
 
 ```bash
-# Debian/Ubuntu
+# Debian/Ubuntu (with build tools for Makefile)
 sudo apt update
-sudo apt install python3 python3-pip git
+sudo apt install python3 python3-pip git build-essential
 
-# Fedora/RHEL
-sudo dnf install python3 python3-pip git
+# Fedora/RHEL (with build tools for Makefile)
+sudo dnf install python3 python3-pip git gcc make
+
+# Alpine (with build tools for Makefile)
+apk add python3 git build-base
 ```
 
 Then install uv:
@@ -134,7 +183,7 @@ To update to the latest version:
 ```bash
 cd pysecfw
 git pull origin main
-uv sync  # Update dependencies
+make setup  # Update dependencies and activate environment
 ```
 
 ## Uninstallation
