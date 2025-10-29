@@ -6,13 +6,13 @@ import starlight from "@astrojs/starlight";
 export default defineConfig({
   integrations: [
     starlight({
-      title: "pysecfw",
-      description: "Modular Python Security Framework for Penetration Testing",
+      title: "hatiyar",
+      description: "Modular Python Security Toolkit for Penetration Testing",
       social: [
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/ajutamangdev/pysecfw",
+          href: "https://github.com/ajutamangdev/hatiyar",
         },
       ],
       sidebar: [
@@ -37,7 +37,7 @@ export default defineConfig({
         // Optional: Add custom CSS if needed
       ],
       editLink: {
-        baseUrl: "https://github.com/ajutamangdev/pysecfw/edit/docs/docs/",
+        baseUrl: "https://github.com/ajutamangdev/hatiyar/edit/docs/docs/",
       },
     }),
   ],

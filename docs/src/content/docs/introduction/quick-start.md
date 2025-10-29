@@ -1,16 +1,16 @@
 ---
 title: Quick Start
-description: Get started with pysecfw in 5 minutes
+description: Get started with hatiyar in 5 minutes
 ---
 
 ## Your First Exploit in 5 Minutes
 
-This guide will walk you through running your first CVE exploit with pysecfw using the interactive shell.
+This guide will walk you through running your first CVE exploit with hatiyar using the interactive shell.
 
 ### Prerequisites
 
 Before you start, you'll need:
-- Pysecfw setup
+- Hatiyar setup
 - **Docker** (for running the vulnerable Grafana instance)
 
 For a detailed setup guide, see the [Installation](/introduction/installation/)
@@ -36,26 +36,26 @@ Keep this terminal running for the exploit to work.
 
 ## Step 1: Start the Interactive Shell
 
-Launch the pysecfw shell:
+Launch the hatiyar shell:
 
 ```bash
-python3 src/pysecfw/main.py shell
+python3 src/hatiyar/main.py shell
 ```
 
 Or simply use the alias:
 
 ```bash
-pysecfw
+hatiyar
 ```
 
 You'll see:
 
 ```
 
-Welcome to pysecfw!
+Welcome to Hatiyar!
 Type help for available commands or ls to explore.
 
-pysecfw>
+hatiyar>
 ```
 
 ## Step 2: Browse Available Modules
@@ -63,7 +63,7 @@ pysecfw>
 List all module categories:
 
 ```bash
-pysecfw> ls
+hatiyar> ls
 ```
 
 Output:
@@ -85,7 +85,7 @@ Use: ls <category> to see modules in that category
 Now list CVE modules specifically:
 
 ```bash
-pysecfw> ls cve
+hatiyar> ls cve
 ```
 
 Output:
@@ -105,7 +105,7 @@ Use: use cve.cve_2021_42013 to load a module
 Alternatively, you can search for a specific vulnerability:
 
 ```bash
-pysecfw> search grafana
+hatiyar> search grafana
 ```
 
 ## Step 3: Select a Module
@@ -113,13 +113,13 @@ pysecfw> search grafana
 Use the Grafana exploit module:
 
 ```bash
-pysecfw> use CVE-2021-43798
+hatiyar> use CVE-2021-43798
 ```
 
 Or using the full module path:
 
 ```bash
-pysecfw> use cve.cve_2021_43798
+hatiyar> use cve.cve_2021_43798
 ```
 
 Output:
@@ -143,7 +143,7 @@ Notice the prompt changed - you're now inside the module context!
 Check what options are available:
 
 ```bash
-pysecfw> show options
+hatiyar> show options
 ```
 
 Output:
@@ -172,23 +172,23 @@ Use set <option> <value> to configure
 Configure the exploit for your target Grafana instance:
 
 ```bash
-pysecfw (CVE-2021-43798)> set RHOST localhost
-pysecfw (CVE-2021-43798)> set PLUGIN alertlist
+hatiyar (CVE-2021-43798)> set RHOST localhost
+hatiyar (CVE-2021-43798)> set PLUGIN alertlist
 ```
 
 If you set up Grafana with Docker as shown in Step 0:
 
 ```bash
-pysecfw (CVE-2021-43798)> set RHOST localhost
-pysecfw (CVE-2021-43798)> set RPORT 3000
-pysecfw (CVE-2021-43798)> set PLUGIN alertlist
-pysecfw (CVE-2021-43798)> set SCHEME http
+hatiyar (CVE-2021-43798)> set RHOST localhost
+hatiyar (CVE-2021-43798)> set RPORT 3000
+hatiyar (CVE-2021-43798)> set PLUGIN alertlist
+hatiyar (CVE-2021-43798)> set SCHEME http
 ```
 
 Or read a specific file:
 
 ```bash
-pysecfw (CVE-2021-43798)> set FILE /etc/passwd
+hatiyar (CVE-2021-43798)> set FILE /etc/passwd
 ```
 
 ## Step 6: Run the Exploit
@@ -196,7 +196,7 @@ pysecfw (CVE-2021-43798)> set FILE /etc/passwd
 Execute the exploit:
 
 ```bash
-pysecfw> run
+hatiyar> run
 ```
 
 Output:
@@ -251,21 +251,21 @@ Module executed successfully
 Go back to the main shell:
 
 ```bash
-pysecfw> back
+hatiyar> back
 ```
 
 List all available modules:
 
 ```bash
-pysecfw> ls
+hatiyar> ls
 ```
 
 Or list by category:
 
 ```bash
-pysecfw> ls cve
-pysecfw> ls enumeration
-pysecfw> ls cloud
+hatiyar> ls cve
+hatiyar> ls enumeration
+hatiyar> ls cloud
 ```
 
 ## CLI Alternative
@@ -273,7 +273,7 @@ pysecfw> ls cloud
 If you prefer one-liners for scripting:
 
 ```bash
-python3 src/pysecfw/main.py run CVE-2021-43798 \
+python3 src/hatiyar/main.py run CVE-2021-43798 \
   --set RHOST=localhost \
   --set RPORT=3000 \
   --set PLUGIN=alertlist

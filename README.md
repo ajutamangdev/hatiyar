@@ -1,24 +1,24 @@
-# Pysecfw
+# Hatiyar
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 > A modular Python security toolkit for penetration testing, vulnerability assessment, and security research.
 
-⚠️ **IMPORTANT:** pysecfw is intended for **educational, research, and defensive security use only**.  
+⚠️ **IMPORTANT:** Hatiyar is intended for **educational, research, and defensive security use only**.  
 Do **not** use this software on systems you do not own or do not have explicit written permission to test. Misuse may result in civil or criminal liability.
 
 ---
 
 ## Quick Demo
 
-![pysecfw demo](/docs/src/assets/pysecfw.gif)
+![hatiyar demo](/docs/src/assets/hatiyar.gif)
 
 ---
 
 ## Overview
 
-**pysecfw** is a python security toolkit for penetration testing.
+**Hatiyar** is a python security toolkit for penetration testing.
 
 It provides:
 - **Interactive CLI (REPL)** - Metasploit-like shell for exploring and executing security modules
@@ -33,7 +33,7 @@ It provides:
 
 ## Quick Start
 
-Get pysecfw running in minutes:
+Get Hatiyar running in minutes:
 
 ### Prerequisites
 
@@ -49,8 +49,8 @@ Get pysecfw running in minutes:
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ajutamangdev/pysecfw.git
-cd pysecfw
+git clone https://github.com/ajutamangdev/hatiyar.git
+cd hatiyar
 ```
 
 #### 2. Set Up with Makefile (Recommended)
@@ -78,7 +78,7 @@ make shell           # Interactive shell
 make serve           # Web server
 ```
 
-> **For detailed installation instructions, alternative setup methods, and platform-specific guides, see the [Installation Guide](https://ajutamangdev.github.io/pysecfw/introduction/installation/).**
+> **For detailed installation instructions, alternative setup methods, and platform-specific guides, see the [Installation Guide](https://ajutamangdev.github.io/hatiyar/introduction/installation/).**
 
 ---
 
@@ -86,7 +86,7 @@ make serve           # Web server
 
 For comprehensive guides, tutorials, API documentation, and usage examples, visit the full documentation:
 
-**[Pysecfw Documentation](https://ajutamangdev.github.io/pysecfw)**
+**[Hatiyar Documentation](https://ajutamangdev.github.io/hatiyar)**
 
 ---
 
@@ -105,9 +105,9 @@ The developers assume no liability for misuse of this software.
 
 ## Support & Community
 
-- **[GitHub Repository](https://github.com/ajutamangdev/pysecfw)** - Source code, issues, discussions
-- **[Issue Tracker](https://github.com/ajutamangdev/pysecfw/issues)** - Report bugs, request features
-- **[Discussions](https://github.com/ajutamangdev/pysecfw/discussions)** - Ask questions, share knowledge
+- **[GitHub Repository](https://github.com/ajutamangdev/hatiyar)** - Source code, issues, discussions
+- **[Issue Tracker](https://github.com/ajutamangdev/hatiyar/issues)** - Report bugs, request features
+- **[Discussions](https://github.com/ajutamangdev/hatiyar/discussions)** - Ask questions, share knowledge
 - **[Discord Community](https://discord.gg/V9HghE8V7M)** - Join our community server
 
 ---

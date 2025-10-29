@@ -1,11 +1,11 @@
 ---
 title: Overview
-description: Introduction to pysecfw - A modular Python security toolkit
+description: Introduction to Hatiyar - A modular Python security toolkit
 ---
 
-## What is pysecfw?
+## What is hatiyar?
 
-**pysecfw** is a modular Python security toolkit designed for penetration testing, vulnerability assessment, and security research. Built for security professionals, it provides a comprehensive set of tools with an interactive shell, production-ready exploit modules, enumeration capabilities, and a modern CLI.
+**hatiyar** is a modular Python security toolkit designed for penetration testing, vulnerability assessment, and security research. Built for security professionals, it provides a comprehensive set of tools with an interactive shell, production-ready exploit modules, enumeration capabilities, and a modern CLI.
 
 Think of it as a focused, extensible alternative to larger frameworks - designed to be lightweight, fast, and easy to customize.
 

@@ -8,7 +8,7 @@ from pathlib import Path
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 from rich.console import Console
 from rich.panel import Panel
-from pysecfw.core.module_base import ModuleBase, ModuleType
+from hatiyar.core.module_base import ModuleBase, ModuleType
 
 console = Console()
 
@@ -37,7 +37,7 @@ class Module(ModuleBase):
 
     NAME = "ec2_enumeration"
     DESCRIPTION = "Comprehensive AWS EC2, VPC, and networking resource enumeration"
-    AUTHOR = "pysecfw"
+    AUTHOR = "hatiyar"
     VERSION = "2.0"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"

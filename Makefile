@@ -14,7 +14,7 @@ PYTHON := $(VENV_DIR)/bin/python
 endif
 
 # Source directory
-SRC_DIR := src/pysecfw
+SRC_DIR := src/hatiyar
 
 # Helper to activate venv before running commands
 ACTIVATE_VENV := bash -c "source $(VENV_DIR)/bin/activate 2>/dev/null;
@@ -36,7 +36,7 @@ install: ## Install dependencies using uv
 
 ##@ Development
 
-shell: ## Launch the interactive pysecfw shell
+shell: ## Launch the interactive hatiyar shell
 	$(ACTIVATE_VENV) $(PYTHON) $(SRC_DIR)/main.py shell"
 
 serve: ## Audit using the web interface
@@ -74,7 +74,7 @@ clean: ## Remove build artifacts and cache files
 ##@ Information
 
 info: ## Display project information
-	@echo "pysecfw - Python Security Framework"
+	@echo "hatiyar - Python Security Toolkit"
 	@echo "======================================"
 	@echo "Python version: $(shell $(PYTHON) --version)"
 	@echo "UV version: $(shell bash -c 'source $(VENV_DIR)/bin/activate 2>/dev/null; uvx --version 2>/dev/null || echo not installed')"

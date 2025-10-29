@@ -3,7 +3,7 @@ title: AWS Enumeration
 description: AWS cloud security and infrastructure enumeration guide
 ---
 
-The pysecfw AWS enumeration suite provides deep visibility into your AWS infrastructure across multiple services. Each module focuses on specific AWS services, providing detailed resource discovery, configuration analysis, and security assessments.
+The Hatiyar AWS enumeration suite provides deep visibility into your AWS infrastructure across multiple services. Each module focuses on specific AWS services, providing detailed resource discovery, configuration analysis, and security assessments.
 
 ### Available Modules
 
@@ -17,14 +17,14 @@ The pysecfw AWS enumeration suite provides deep visibility into your AWS infrast
 ### Getting Started
 
 ```bash
-# Start pysecfw shell
-pysecfw shell
+# Start hatiyar shell
+hatiyar shell
 
 # List available AWS modules
-pysecfw> ls cloud.aws
+hatiyar> ls cloud.aws
 
 # Use a specific module
-pysecfw> use cloud.aws.ec2
+hatiyar> use cloud.aws.ec2
 ```
 
 ---
@@ -65,7 +65,7 @@ Provide:
 aws configure --profile myprofile
 ```
 
-Then use in pysecfw:
+Then use in hatiyar:
 ```bash
 set AWS_PROFILE myprofile
 ```
@@ -80,7 +80,7 @@ export AWS_DEFAULT_REGION="us-east-1"
 
 #### Option D: Direct Credentials (Not Recommended for Production)
 
-Set credentials directly in pysecfw:
+Set credentials directly in hatiyar:
 ```bash
 set ACCESS_KEY your-access-key
 set SECRET_KEY your-secret-key
@@ -161,12 +161,12 @@ cat ~/.aws/config
 cat ~/.aws/credentials
 ```
 
-#### Use the Profile in pysecfw
+#### Use the Profile in hatiyar
 
-In the pysecfw shell, simply set the profile:
+In the hatiyar shell, simply set the profile:
 
 ```bash
-pysecfw> set AWS_PROFILE local
+hatiyar> set AWS_PROFILE local
 ```
 
 This will automatically use the LocalStack endpoint URL and credentials you configured above.
@@ -178,16 +178,16 @@ Once you create some emulated aws resources in LocalStack, you can perform enume
 ```bash
 
 # Load EC2 module
-pysecfw> use cloud.aws.ec2
+hatiyar> use cloud.aws.ec2
 
 # Set the local profile
-pysecfw> set AWS_PROFILE local
+hatiyar> set AWS_PROFILE local
 
 # View configuration to verify
-pysecfw> show options
+hatiyar> show options
 
 # Run enumeration
-pysecfw> run
+hatiyar> run
 ```
 
 The enumeration will use the endpoint URL (`http://localhost:4566`) and credentials from your `local` AWS profile automatically.
@@ -210,29 +210,29 @@ docker-compose down
 ### Interactive Shell Method
 
 ```bash
-# Start pysecfw shell
-pysecfw shell
+# Start hatiyar shell
+hatiyar shell
 
 # List cloud modules
-pysecfw> ls cloud
+hatiyar> ls cloud
 
 # Navigate to AWS namespace
-pysecfw> use cloud.aws
+hatiyar> use cloud.aws
 
 
 # Load EC2 module
-pysecfw> use cloud.aws.ec2
+hatiyar> use cloud.aws.ec2
 
 # View module options
-pysecfw> show options
+hatiyar> show options
 
 # Set AWS region
-pysecfw> set AWS_REGION us-east-1
+hatiyar> set AWS_REGION us-east-1
 
-pysecfw>set AWS_PROFILE <name-of-aws-profie> or set  SECRET_KEY and ACCESS_KEY
+hatiyar>set AWS_PROFILE <name-of-aws-profie> or set  SECRET_KEY and ACCESS_KEY
 
 # Run enumeration
-pysecfw> run
+hatiyar> run
 ```
 
 
@@ -241,8 +241,8 @@ pysecfw> run
 View all available options:
 
 ```bash
-pysecfw> use cloud.aws.ec2
-pysecfw> show options
+hatiyar> use cloud.aws.ec2
+hatiyar> show options
 ```
 
 ### Configuration Options
@@ -339,7 +339,7 @@ ls -la
 
 ## Contributing New AWS Modules
 
-Want to add support for additional AWS services? See our [Contributing Guide](/pysecfw/guides/contribution/)
+Want to add support for additional AWS services? See our [Contributing Guide](/hatiyar/guides/contribution/)
 
 ---
 

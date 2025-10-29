@@ -6,8 +6,8 @@ src_path = Path(__file__).resolve().parents[2]
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-from pysecfw.main import app  # noqa: E402
-from pysecfw.web.config import config  # noqa: E402
+from hatiyar.main import app  # noqa: E402
+from hatiyar.web.config import config  # noqa: E402
 
 # For backwards compatibility and uvicorn support
 __all__ = ["app", "config"]

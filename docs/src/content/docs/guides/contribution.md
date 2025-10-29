@@ -1,9 +1,9 @@
 ---
 title: Contributing Guidelines
-description: How to contribute to pysecfw
+description: How to contribute to hatiyar
 ---
 
-Thank you for your interest in contributing to pysecfw! This guide will help you get started with contributing code, modules, documentation, and more.
+Thank you for your interest in contributing to hatiyar! This guide will help you get started with contributing code, modules, documentation, and more.
 
 ## Code of Conduct
 
@@ -68,7 +68,7 @@ Have an idea? We'd love to hear it!
    # Check style
    make lint
    # or
-   uvx ruff check src/pysecfw
+   uvx ruff check src/hatiyar
    ```
 
 5. **Commit changes:**
@@ -123,8 +123,8 @@ test(modules): add tests for module loading
 **2. Create module file:**
 
 ```python
-# src/pysecfw/modules/cve/your-custom-exploit.py
-from pysecfw.core.module_base import CVEModule
+# src/hatiyar/modules/cve/your-custom-exploit.py
+from hatiyar.core.module_base import CVEModule
 
 class Module(ModuleBase):
     """
@@ -178,7 +178,7 @@ class Module(ModuleBase):
 **3. Register module:**
 
 ```yaml
-# src/pysecfw/modules/cve/cve.yaml
+# src/hatiyar/modules/cve/cve.yaml
 modules:
   - id: CVE-2024-12345
     name: "CVE-2024-12345 - Vulnerability Name"
@@ -194,7 +194,7 @@ modules:
 ```python
 # tests/test_cve_2024_12345.py
 import pytest
-from pysecfw.core.modules import ModuleRegistry
+from hatiyar.core.modules import ModuleRegistry
 
 def test_module_loads():
     """Test module can be loaded"""
@@ -283,11 +283,11 @@ Documentation is crucial! You can help by:
 
 ### Getting Help
 
- - [GitHub Issues](https://github.com/ajutamangdev/pysecfw/issues): Bug reports and feature requests
- - [Discussions](https://github.com/ajutamangdev/pysecfw/discussions): Questions and general discussion
+ - [GitHub Issues](https://github.com/ajutamangdev/hatiyar/issues): Bug reports and feature requests
+ - [Discussions](https://github.com/ajutamangdev/hatiyar/discussions): Questions and general discussion
 
 ## Questions?
 
 Don't hesitate to ask! Create an issue labeled "question" or reach out to maintainers.
 
-Thank you for contributing to pysecfw!
+Thank you for contributing to hatiyar!

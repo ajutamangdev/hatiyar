@@ -1,4 +1,4 @@
-"""Interactive shell for pysecfw"""
+"""Interactive shell for hatiyar"""
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
@@ -28,7 +28,7 @@ COMMANDS = [
 ]
 
 WELCOME_MESSAGE = (
-    "[bold green]Welcome to pysecfw![/bold green]\n"
+    "[bold green]Welcome to Hatiyar![/bold green]\n"
     "Type [bold cyan]help[/bold cyan] for available commands or [cyan]ls[/cyan] to explore.\n"
 )
 
@@ -45,13 +45,13 @@ def start_shell() -> None:
 
     while True:
         try:
-            user_input = session.prompt("pysecfw> ").strip()
+            user_input = session.prompt("hatiyar> ").strip()
 
             if not user_input:
                 continue
 
             if user_input.lower() in EXIT_COMMANDS:
-                console.print("[yellow]Exiting pysecfw...[/yellow]")
+                console.print("[yellow]Exiting hatiyar...[/yellow]")
                 break
 
             handle_command(user_input, console)

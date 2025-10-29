@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from rich.console import Console
-from pysecfw.core.module_base import ModuleBase
+from hatiyar.core.module_base import ModuleBase
 
 console = Console()
 

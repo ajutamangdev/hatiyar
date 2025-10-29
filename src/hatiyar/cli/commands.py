@@ -1,9 +1,9 @@
-"""Command handlers for pysecfw CLI"""
+"""Command handlers for hatiyar CLI"""
 
 from typing import Optional, List, Dict, Any
 from rich.table import Table
 from rich.panel import Panel
-from pysecfw.core.modules import ModuleManager
+from hatiyar.core.modules import ModuleManager
 
 # Global state
 manager = ModuleManager()
@@ -75,7 +75,7 @@ def show_help(console) -> None:
         "[yellow]Utility:[/yellow]\n"
         "  reload                 - Reload modules from YAML files\n"
         "  clear                  - Clear the console\n"
-        "  exit/quit              - Exit pysecfw\n\n"
+        "  exit/quit              - Exit hatiyar\n\n"
     )
     console.print(Panel.fit(help_text, title="Help", border_style="cyan"))
 
@@ -83,7 +83,7 @@ def show_help(console) -> None:
 def clear_screen(console) -> None:
     """Clear console and show welcome message"""
     console.clear()
-    console.print("[bold green]Welcome to pysecfw![/bold green]")
+    console.print("[bold green]Welcome to hatiyar![/bold green]")
     console.print(
         "Type [bold cyan]help[/bold cyan] for available commands or [cyan]ls[/cyan] to explore.\n"
     )

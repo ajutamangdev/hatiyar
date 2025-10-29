@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Constants
 MODULE_CLASS_NAME = "Module"
 CVE_PREFIX = "CVE-"
-MODULE_PATH_PREFIX = "pysecfw.modules."
+MODULE_PATH_PREFIX = "hatiyar.modules."
 DEFAULT_CATEGORY = "misc"
 DEFAULT_MODULE_TYPE = "auxiliary"
 REGISTRY_FILENAME = "*.yaml"
@@ -56,10 +56,10 @@ class ModuleManager:
         self.verbose = verbose
         self.modules_path = Path(__file__).parent.parent / "modules"
 
-        # Add pysecfw to Python path if not already there
-        pysecfw_root = Path(__file__).parent.parent.parent
-        if str(pysecfw_root) not in sys.path:
-            sys.path.insert(0, str(pysecfw_root))
+        # Add hatiyar to Python path if not already there
+        hatiyar_root = Path(__file__).parent.parent.parent
+        if str(hatiyar_root) not in sys.path:
+            sys.path.insert(0, str(hatiyar_root))
 
         # Internal state
         self._cache: Dict[str, Any] = {}

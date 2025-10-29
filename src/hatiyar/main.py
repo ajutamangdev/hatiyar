@@ -1,7 +1,7 @@
 """
-pysecfw - Modular Python Security Framework
+Hatiyar - security toolkit for pentesters and security researchers.
 
-Main entry point for Pysecfw
+Main entry point for Hatiyar
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ src_dir = Path(__file__).resolve().parent.parent
 if str(src_dir) not in sys.path:
     sys.path.insert(0, str(src_dir))
 
-from pysecfw import __version__  # noqa: E402
+from hatiyar import __version__  # noqa: E402
 
 if TYPE_CHECKING:
     import typer
@@ -33,12 +33,12 @@ try:
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
 
-    from pysecfw.web.routes import router as dashboard_router  # noqa: E402
-    from pysecfw.web.config import config  # noqa: E402
+    from hatiyar.web.routes import router as dashboard_router  # noqa: E402
+    from hatiyar.web.config import config  # noqa: E402
 
     # Initialize application
     app = FastAPI(
-        title="pysecfw",
+        title="hatiyar",
         description="",
         version=__version__,
     )
@@ -76,12 +76,12 @@ if TYPER_AVAILABLE:
         """Show version and exit."""
         if value:
             console = Console()
-            console.print(f"[cyan]pysecfw[/cyan] version [green]{__version__}[/green]")
+            console.print(f"[cyan]hatiyar[/cyan] version [green]{__version__}[/green]")
             raise typer.Exit()
 
     cli = typer.Typer(
-        name="pysecfw",
-        help="""pysecfw - Modular Python Security Framework
+        name="hatiyar",
+        help="""hatiyar - Modular Python Security Framework
         """,
         add_completion=False,
         rich_markup_mode="rich",
@@ -100,19 +100,19 @@ if TYPER_AVAILABLE:
             is_eager=True,
         ),
     ) -> None:
-        """pysecfw - Modular Python Security Framework"""
+        """hatiyar - Modular Python Security Framework"""
         pass
 
     @cli.command(name="shell")
     def shell() -> None:
         """
-        Start the interactive pysecfw shell (REPL).
+        Start the interactive hatiyar shell (REPL).
 
         The shell provides an interactive environment for exploring modules,
         setting options, and running exploits with tab completion.
         """
         try:
-            from pysecfw.cli.shell import start_shell  # noqa: E402
+            from hatiyar.cli.shell import start_shell  # noqa: E402
         except Exception as e:
             print(f"Failed to start shell: {e}")
             raise typer.Exit(code=1)
@@ -133,10 +133,10 @@ if TYPER_AVAILABLE:
         Launch a web-based interface for managing security assessments through a browser.
 
         Examples:
-          pysecfw serve                              # Start on 0.0.0.0:8000
-          pysecfw serve --port 8080                  # Custom port
-          pysecfw serve --host 127.0.0.1             # Localhost only
-          pysecfw serve --reload                     # Auto-reload for development
+          hatiyar serve                              # Start on 0.0.0.0:8000
+          hatiyar serve --port 8080                  # Custom port
+          hatiyar serve --host 127.0.0.1             # Localhost only
+          hatiyar serve --reload                     # Auto-reload for development
         """
         try:
             import uvicorn  # type: ignore
@@ -146,11 +146,11 @@ if TYPER_AVAILABLE:
             raise typer.Exit(code=1)
 
         console.print(
-            f"[green]Starting pysecfw web server on[/green] http://{host}:{port}"
+            f"[green]Starting hatiyar web server on[/green] http://{host}:{port}"
         )
         console.print(f"[cyan]   Dashboard:[/cyan] http://{host}:{port}/")
 
-        uvicorn.run("pysecfw.main:app", host=host, port=port, reload=reload)
+        uvicorn.run("hatiyar.main:app", host=host, port=port, reload=reload)
 
     @cli.command(name="info")
     def info() -> None:
@@ -159,13 +159,13 @@ if TYPER_AVAILABLE:
 
         Shows version information, module counts by category, and system details.
         """
-        from pysecfw.core.modules import ModuleManager  # noqa: E402
+        from hatiyar.core.modules import ModuleManager  # noqa: E402
 
         manager = ModuleManager()
         stats = manager.get_stats()
 
         console.print(
-            "\n[bold cyan]pysecfw - Modular Python Security Framework[/bold cyan]"
+            "\n[bold cyan]hatiyar - Modular Python Security Framework[/bold cyan]"
         )
         console.print(f"[dim]Version:[/dim] [green]{__version__}[/green]\n")
 
@@ -194,12 +194,12 @@ if TYPER_AVAILABLE:
         Searches across module names amd CVE IDs).
 
         Examples:
-          pysecfw search grafana          # Search for Grafana-related modules
-          pysecfw search CVE-2021         # Find all 2021 CVEs
-          pysecfw search apache           # Find Apache-related exploits
-          pysecfw search traversal        # Search by vulnerability type
+          hatiyar search grafana          # Search for Grafana-related modules
+          hatiyar search CVE-2021         # Find all 2021 CVEs
+          hatiyar search apache           # Find Apache-related exploits
+          hatiyar search traversal        # Search by vulnerability type
         """
-        from pysecfw.core.modules import ModuleManager  # noqa: E402
+        from hatiyar.core.modules import ModuleManager  # noqa: E402
         from rich.table import Table
 
         manager = ModuleManager()
@@ -250,23 +250,23 @@ if TYPER_AVAILABLE:
 
         Examples:
           # Run by module path
-          pysecfw run cve.cve_2021_43798 --set RHOST=example.com --set PLUGIN=grafana
+          hatiyar run cve.cve_2021_43798 --set RHOST=example.com --set PLUGIN=grafana
 
           # Run by CVE ID
-          pysecfw run CVE-2021-43798 --set RHOST=example.com --set PLUGIN=grafana
+          hatiyar run CVE-2021-43798 --set RHOST=example.com --set PLUGIN=grafana
 
           # Show module info before running
-          pysecfw run cve.cve_2021_43798 --info
+          hatiyar run cve.cve_2021_43798 --info
 
           # Search for modules first
-          pysecfw search grafana
+          hatiyar search grafana
 
         Workflow:
-          1. Search for modules: pysecfw search <keyword>
-          2. View module details: pysecfw run <module> --info
-          3. Run with required options: pysecfw run <module> --set OPTION=value
+          1. Search for modules: hatiyar search <keyword>
+          2. View module details: hatiyar run <module> --info
+          3. Run with required options: hatiyar run <module> --set OPTION=value
         """
-        from pysecfw.core.modules import ModuleManager  # noqa: E402
+        from hatiyar.core.modules import ModuleManager  # noqa: E402
         from rich.table import Table
         from rich.panel import Panel
 
@@ -356,7 +356,7 @@ if TYPER_AVAILABLE:
                 console.print("[yellow]Set them with:[/yellow] --set OPTION=VALUE")
                 console.print()
                 console.print("[cyan]Example:[/cyan]")
-                console.print(f"  pysec run {module_path} --set {missing[0]}=value")
+                console.print(f"  hatiyar run {module_path} --set {missing[0]}=value")
                 raise typer.Exit(code=1)
 
         # Run the module
@@ -388,13 +388,13 @@ if TYPER_AVAILABLE:
 
 
 def main() -> int:
-    """Main entry point for pysecfw CLI."""
+    """Main entry point for hatiyar CLI."""
     if not TYPER_AVAILABLE or cli is None:
         print("Error: typer is not installed.")
         print("Install it with: uv add typer")
         return 1
 
-    cli(prog_name="pysecfw")
+    cli(prog_name="hatiyar")
     return 0
 
 

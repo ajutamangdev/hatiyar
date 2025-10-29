@@ -1,11 +1,11 @@
 ---
 title: Installation
-description: How to install and set up pysecfw
+description: How to install and set up hatiyar
 ---
 
 ## Prerequisites
 
-Before installing pysecfw, ensure you have the following:
+Before installing hatiyar, ensure you have the following:
 
 - **Python 3.9 or higher** - [Download Python](https://www.python.org/downloads/)
 - **git** - [Install git](https://git-scm.com/downloads/)
@@ -20,8 +20,8 @@ Before installing pysecfw, ensure you have the following:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ajutamangdev/pysecfw.git
-cd pysecfw
+git clone https://github.com/ajutamangdev/hatiyar.git
+cd hatiyar
 ```
 
 ### 2. Set Up the Project
@@ -52,7 +52,7 @@ This displays:
 
 ## Quick Start
 
-After setup, use the Makefile to launch pysecfw:
+After setup, use the Makefile to launch hatiyar:
 
 ```bash
 make shell            # Launch interactive shell
@@ -69,8 +69,8 @@ If you prefer not to use Makefile, follow these steps:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ajutamangdev/pysecfw.git
-cd pysecfw
+git clone https://github.com/ajutamangdev/hatiyar.git
+cd hatiyar
 ```
 
 ### 2. Create and Activate Virtual Environment
@@ -93,15 +93,15 @@ uv sync
 ### 4. Verify Installation
 
 ```bash
-python3 src/pysecfw/main.py --version
+python3 src/hatiyar/main.py --version
 ```
 
 ### 5. Run the Framework
 
 ```bash
-python3 src/pysecfw/main.py shell  # Interactive shell
+python3 src/hatiyar/main.py shell  # Interactive shell
 # OR
-python3 src/pysecfw/main.py serve  # Web server
+python3 src/hatiyar/main.py serve  # Web server
 ```
 
 ## Platform-Specific Notes
@@ -181,7 +181,7 @@ python3 --version
 To update to the latest version:
 
 ```bash
-cd pysecfw
+cd hatiyar
 git pull origin main
 make setup  # Update dependencies and activate environment
 ```
@@ -191,5 +191,5 @@ make setup  # Update dependencies and activate environment
 ```bash
 # Remove directory
 cd ..
-rm -rf pysecfw
+rm -rf hatiyar
 ```

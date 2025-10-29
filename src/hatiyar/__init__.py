@@ -13,7 +13,7 @@ def _get_version() -> str:
     3. Fallback to "unknown"
     """
     try:
-        return importlib.metadata.version("pysecfw")
+        return importlib.metadata.version("hatiyar")
     except importlib.metadata.PackageNotFoundError:
         pass
 

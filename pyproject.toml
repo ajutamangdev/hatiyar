@@ -1,5 +1,5 @@
 [project]
-name = "pysecfw"
+name = "hatiyar"
 version = "0.1.0"
 description = "python security toolkit for penetration testing."
 readme = "README.md"
@@ -26,4 +26,4 @@ dependencies = [
 ]
 
 [project.scripts]
-pysecfw = "pysecfw.main:main"
+hatiyar = "hatiyar.main:main"

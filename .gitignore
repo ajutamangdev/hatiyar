@@ -1,6 +1,6 @@
 .venv/
 dist/
-pysecfw.egg-info/
+hatiyar.egg-info/
 __pycache__/
 *.pyc
 *.pyo

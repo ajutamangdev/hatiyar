@@ -1,1 +1,0 @@
-"""pysecfw modules package"""

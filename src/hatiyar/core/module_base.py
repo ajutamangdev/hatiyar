@@ -19,7 +19,7 @@ class ModuleType(Enum):
 
 class ModuleBase(ABC):
     """
-    Abstract base class for all pysecfw modules.
+    Abstract base class for all hatiyar modules.
 
     All modules must inherit from this class and implement the run() method.
     """

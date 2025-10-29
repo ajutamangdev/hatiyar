@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 import socket
 from rich.console import Console
 from rich.panel import Panel
-from pysecfw.core.module_base import CVEModule
+from hatiyar.core.module_base import CVEModule
 
 console = Console()
 

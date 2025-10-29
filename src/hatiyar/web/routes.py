@@ -1,4 +1,4 @@
-"""Web dashboard routes for pysecfw."""
+"""Web dashboard routes for hatiyar."""
 
 from pathlib import Path
 from fastapi import APIRouter, Request
@@ -11,7 +11,7 @@ except ImportError:
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pysecfw.core.modules import ModuleManager
+    from hatiyar.core.modules import ModuleManager
 
 router = APIRouter(tags=["dashboard"])
 base_dir = Path(__file__).parent
