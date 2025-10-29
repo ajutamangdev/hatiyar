@@ -85,6 +85,124 @@ Set credentials directly in pysecfw:
 set ACCESS_KEY your-access-key
 set SECRET_KEY your-secret-key
 ```
+
+### 3. Testing with LocalStack (Local AWS Emulation)
+
+For development and testing purposes, you can use **LocalStack** to emulate AWS services locally without using real AWS credentials or resources.
+
+#### Setup LocalStack
+
+**Prerequisites:**
+- Docker installed and running
+
+**Start LocalStack:**
+```bash
+docker run -d \
+  --name localstack \
+  -p 4566:4566 \
+  localstack/localstack:latest
+```
+
+Or using Docker Compose (`docker-compose.yml`):
+```yaml
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+```
+
+Start with:
+```bash
+docker-compose up -d
+```
+
+**Verify LocalStack is Running:**
+
+```bash
+# Check if container is running
+docker ps
+
+# Check health endpoint
+curl http://localhost:4566/_localstack/health
+```
+
+Expected output should show the container is running and health check returns a success response.
+
+#### Configure Fake AWS Credentials with Profile
+
+Create a local AWS profile for LocalStack:
+
+```bash
+# Create a new AWS profile named 'local'
+aws configure --profile local
+```
+
+Provide the following when prompted:
+```
+AWS Access Key ID [None]: fake
+AWS Secret Access Key [None]: fake
+Default region name [None]: us-east-1
+Default output format [None]: json
+```
+
+Then configure the LocalStack endpoint URL for this profile:
+
+```bash
+aws configure set ENDPOINT_URL http://localhost:4566 --profile local
+```
+
+**Verify the configuration** (should be saved in `~/.aws/config` and `~/.aws/credentials`):
+
+```bash
+# View the profile configuration
+cat ~/.aws/config
+cat ~/.aws/credentials
+```
+
+#### Use the Profile in pysecfw
+
+In the pysecfw shell, simply set the profile:
+
+```bash
+pysecfw> set AWS_PROFILE local
+```
+
+This will automatically use the LocalStack endpoint URL and credentials you configured above.
+
+#### Test EC2 Enumeration with LocalStack
+
+Once you create some emulated aws resources in LocalStack, you can perform enumeration.
+
+```bash
+
+# Load EC2 module
+pysecfw> use cloud.aws.ec2
+
+# Set the local profile
+pysecfw> set AWS_PROFILE local
+
+# View configuration to verify
+pysecfw> show options
+
+# Run enumeration
+pysecfw> run
+```
+
+The enumeration will use the endpoint URL (`http://localhost:4566`) and credentials from your `local` AWS profile automatically.
+
+#### Cleanup LocalStack
+
+```bash
+# Stop and remove LocalStack container
+docker stop localstack
+docker rm localstack
+
+# Or with Docker Compose:
+docker-compose down
+```
+
 ---
 
 ## EC2 - Quick Start
