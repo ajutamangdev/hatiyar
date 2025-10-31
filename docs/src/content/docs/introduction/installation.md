@@ -104,6 +104,102 @@ python3 src/hatiyar/main.py shell  # Interactive shell
 python3 src/hatiyar/main.py serve  # Web server
 ```
 
+## Container Setup (Docker/Podman)
+
+hatiyar can be containerized for consistent deployment across environments. Use either **Docker** or **Podman**.
+
+### Prerequisites
+
+- **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
+- **Podman**: [Install Podman](https://podman.io/docs/installation)
+
+### Building the Container Image
+
+#### Using Docker
+
+```bash
+# Build the image
+docker build -t hatiyar -f Containerfile .
+
+# Verify the image was created
+docker images | grep hatiyar
+```
+
+#### Using Podman
+
+```bash
+# Build the image
+podman build -t hatiyar -f Containerfile .
+
+# Verify the image was created
+podman images | grep hatiyar
+```
+
+### Running the Container
+
+#### Interactive Shell with Docker
+
+```bash
+docker run -it --rm hatiyar shell
+```
+
+#### Interactive Shell with Podman
+
+```bash
+podman run -it --rm hatiyar shell
+```
+
+#### With AWS Credentials (Local Development)
+
+Mount your AWS credentials into the container for cloud operations:
+
+**Docker:**
+```bash
+docker run -it --rm \
+  -v ~/.aws:/home/appuser/.aws:ro \
+  -e AWS_PROFILE=your-profile \
+  hatiyar shell
+```
+
+**Podman:**
+```bash
+podman run -it --rm \
+  -v ~/.aws:/home/appuser/.aws:ro \
+  -e AWS_PROFILE=your-profile \
+  hatiyar shell
+```
+
+Replace `your-profile` with your AWS profile name.
+
+### Troubleshooting Container Issues
+
+#### "typer is not installed" Error
+
+This error occurs when running a stale container image. Rebuild it:
+
+```bash
+# Docker
+docker build -t hatiyar -f Containerfile . --no-cache
+
+# Podman
+podman build -t hatiyar -f Containerfile . --no-cache
+```
+
+The `--no-cache` flag forces a fresh build without using cached layers.
+
+
+### Container Image Details
+
+The Containerfile uses a multi-stage build for efficiency:
+
+1. **Builder Stage** (`python:3.11-alpine`): Compiles dependencies with `uv`
+2. **Runtime Stage** (`python:3.11-slim`): Runs the application with minimal footprint
+
+Environment variables in the runtime:
+- `PYTHONUNBUFFERED=1`: Real-time log output
+- `PYTHONDONTWRITEBYTECODE=1`: No `.pyc` files in container
+- Non-root `appuser` for security
+
 ## Platform-Specific Notes
 
 ### Linux
