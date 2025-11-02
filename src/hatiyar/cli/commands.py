@@ -10,6 +10,7 @@ manager = ModuleManager()
 active_module: Optional[Any] = None
 active_module_name: Optional[str] = None
 module_options: Dict[str, Any] = {}
+current_context: str = ""  # Track current navigation context (e.g., "cloud", "cloud.aws")
 
 # Constants
 CATEGORIES_INFO = [
@@ -21,6 +22,11 @@ CATEGORIES_INFO = [
 ]
 
 SENSITIVE_KEYWORDS = ["PASSWORD", "KEY", "SECRET", "TOKEN"]
+
+
+def get_current_context() -> str:
+    """Get the current navigation context"""
+    return current_context
 
 
 def handle_command(command: str, console) -> None:
@@ -102,10 +108,24 @@ def handle_reload(console) -> None:
 
 def handle_list(args: List[str], console) -> None:
     """Handle list/ls command"""
+    global current_context
+    
     if not args:
-        show_categories(console)
+        # If we're in a context, show that context's contents
+        if current_context:
+            # Check if it's a namespace (e.g., cloud.aws)
+            if current_context in manager.namespaces:
+                show_namespace_modules(current_context, console)
+            else:
+                show_category_modules(current_context, console)
+        else:
+            # No context, show categories
+            show_categories(console)
     else:
         category_or_namespace = args[0].lower()
+        
+        # Set the current context
+        current_context = category_or_namespace
 
         # Check if it's a namespace (e.g., cloud.aws)
         if category_or_namespace in manager.namespaces:
@@ -116,6 +136,9 @@ def handle_list(args: List[str], console) -> None:
 
 def show_categories(console) -> None:
     """Display available module categories"""
+    global current_context
+    current_context = ""  # Reset context when showing categories
+    
     table = Table(title="", show_header=True, header_style="bold magenta")
     table.add_column("Category", style="cyan bold", no_wrap=True, width=15)
     table.add_column("Description", style="dim")
@@ -504,16 +527,27 @@ def display_run_result(result: Any, console) -> None:
 
 
 def handle_back(console) -> None:
-    """Handle back command"""
-    global active_module, active_module_name, module_options
+    """Handle back command - navigate up context or unload module"""
+    global active_module, active_module_name, module_options, current_context
 
     if active_module:
+        # If module is loaded, unload it
         active_module = None
         active_module_name = None
         module_options = {}
         console.print("[yellow]Module unloaded[/yellow]")
+    elif current_context:
+        # If in a context, navigate up
+        if "." in current_context:
+            # From cloud.aws -> cloud
+            current_context = current_context.rsplit(".", 1)[0]
+            console.print(f"[yellow]Navigated back to {current_context}[/yellow]")
+        else:
+            # From cloud -> root
+            current_context = ""
+            console.print("[yellow]Navigated back to root[/yellow]")
     else:
-        console.print("[dim]No module loaded[/dim]")
+        console.print("[dim]Already at root level[/dim]")
 
 
 # Utility functions

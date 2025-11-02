@@ -4,7 +4,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from rich.console import Console
-from .commands import handle_command
+from .commands import handle_command, get_current_context
 
 console = Console()
 
@@ -45,7 +45,14 @@ def start_shell() -> None:
 
     while True:
         try:
-            user_input = session.prompt("hatiyar> ").strip()
+            # Build prompt with context
+            context = get_current_context()
+            if context:
+                prompt_text = f"hatiyar({context})> "
+            else:
+                prompt_text = "hatiyar> "
+            
+            user_input = session.prompt(prompt_text).strip()
 
             if not user_input:
                 continue

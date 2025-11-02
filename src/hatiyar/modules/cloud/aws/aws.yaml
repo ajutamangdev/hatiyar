@@ -8,3 +8,11 @@ modules:
     subcategory: "aws"
     cloud_provider: "AWS"
     description: "Comprehensive EC2 enumeration including instances, security groups, volumes, snapshots, and AMIs with security assessment"
+  
+  - id: s3_enumeration
+    name: "S3 Enumeration"
+    module_path: "cloud.aws.s3"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive S3 bucket enumeration including encryption, versioning, policies, ACLs, and security configuration"

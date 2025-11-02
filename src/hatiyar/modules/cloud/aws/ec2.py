@@ -51,7 +51,6 @@ class Module(ModuleBase):
         "SESSION_TOKEN": "",
         "ENUMERATE_INSTANCES": True,  # Main toggle for instance-centric enumeration
         "OUTPUT_FILE": "ec2_enumeration_results.json",  # JSON output file path (auto-generated if not specified)
-        "VERBOSE": False,
     }
 
     REQUIRED_OPTIONS = ["AWS_REGION"]
