@@ -16,3 +16,19 @@ modules:
     subcategory: "aws"
     cloud_provider: "AWS"
     description: "Comprehensive S3 bucket enumeration including encryption, versioning, policies, ACLs, and security configuration"
+  
+  - id: secrets_enumeration
+    name: "Secrets Manager & Parameter Store Enumeration"
+    module_path: "cloud.aws.secrets"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Enumerate AWS Secrets Manager secrets and Systems Manager Parameter Store parameters with rotation and security analysis"
+  
+  - id: iam_enumeration
+    name: "IAM Enumeration"
+    module_path: "cloud.aws.iam"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive IAM enumeration including users, roles, groups, policies, MFA status, and security findings"

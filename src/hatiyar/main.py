@@ -81,7 +81,7 @@ if TYPER_AVAILABLE:
 
     cli = typer.Typer(
         name="hatiyar",
-        help="""hatiyar - Modular Python Security Framework
+        help="""hatiyar - security toolkit designed for penetration testing, vulnerability assessment, and security research
         """,
         add_completion=False,
         rich_markup_mode="rich",
@@ -100,7 +100,7 @@ if TYPER_AVAILABLE:
             is_eager=True,
         ),
     ) -> None:
-        """hatiyar - Modular Python Security Framework"""
+        """hatiyar - security toolkit designed for penetration testing, vulnerability assessment, and security research."""
         pass
 
     @cli.command(name="shell")
@@ -165,7 +165,7 @@ if TYPER_AVAILABLE:
         stats = manager.get_stats()
 
         console.print(
-            "\n[bold cyan]hatiyar - Modular Python Security Framework[/bold cyan]"
+            "\n[bold cyan]hatiyar - security toolkit designed for penetration testing, vulnerability assessment, and security research[/bold cyan]"
         )
         console.print(f"[dim]Version:[/dim] [green]{__version__}[/green]\n")
 

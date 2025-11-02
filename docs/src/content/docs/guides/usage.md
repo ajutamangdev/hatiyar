@@ -3,7 +3,7 @@ title: Usage Guide
 description: Complete command reference for hatiyar
 ---
 
-hatiyar is a modular Python security framework for vulnerability assessment, exploitation, and security testing.
+hatiyar is a security toolkit designed for penetration testing, vulnerability assessment, and security research.
 
 ## Quick Start
 

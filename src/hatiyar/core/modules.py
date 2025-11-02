@@ -439,12 +439,13 @@ class ModuleManager:
 
         return sorted(filtered, key=lambda x: x.get("name", ""))
 
-    def load_module(self, path: str) -> Optional[Any]:
+    def load_module(self, path: str, silent: bool = False) -> Optional[Any]:
         """
         Load and instantiate a module by path or CVE ID.
 
         Args:
             path: Module path (e.g., 'cve.2021.hello') or CVE ID (e.g., 'CVE-2021-44228')
+            silent: If True, suppress error messages (useful for trying multiple paths)
 
         Returns:
             Instantiated module object or None if loading failed
@@ -455,16 +456,18 @@ class ModuleManager:
             cve_path = self.cve_map.get(cve_id)
 
             if not cve_path:
-                console.print(f"[red] No module found for {cve_id}[/red]")
-                console.print(f"[yellow] Try: search {cve_id}[/yellow]")
+                if not silent:
+                    console.print(f"[red] No module found for {cve_id}[/red]")
+                    console.print(f"[yellow] Try: search {cve_id}[/yellow]")
                 return None
 
             path = cve_path
 
         # Check if module is registered
         if path not in self.metadata_cache:
-            console.print(f"[red] Module '{path}' not found in registry[/red]")
-            console.print("[yellow]Use 'ls' to see available modules[/yellow]")
+            if not silent:
+                console.print(f"[red] Module '{path}' not found in registry[/red]")
+                console.print("[yellow]Use 'ls' to see available modules[/yellow]")
             return None
 
         # Normalize path
@@ -487,17 +490,21 @@ class ModuleManager:
                 if name == MODULE_CLASS_NAME:
                     return obj()
 
-            console.print(
-                f"[red]No {MODULE_CLASS_NAME} class found in {module_path}[/red]"
-            )
-            console.print("[yellow] Ensure your module has a 'Module' class[/yellow]")
+            if not silent:
+                console.print(
+                    f"[red]No {MODULE_CLASS_NAME} class found in {module_path}[/red]"
+                )
+                console.print(
+                    "[yellow] Ensure your module has a 'Module' class[/yellow]"
+                )
             return None
 
         except ImportError as e:
-            console.print(f"[red]Failed to import module: {e}[/red]")
-            console.print(
-                f"[yellow] Check that the Python file exists at {module_path.replace('.', '/')}.py[/yellow]"
-            )
+            if not silent:
+                console.print(f"[red]Failed to import module: {e}[/red]")
+                console.print(
+                    f"[yellow] Check that the Python file exists at {module_path.replace('.', '/')}.py[/yellow]"
+                )
             return None
         except Exception as e:
             console.print(f"[red]Error loading module: {e}[/red]")

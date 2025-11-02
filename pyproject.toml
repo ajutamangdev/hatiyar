@@ -1,7 +1,7 @@
 [project]
 name = "hatiyar"
 version = "0.1.0"
-description = "python security toolkit for penetration testing."
+description = "security toolkit designed for penetration testing, vulnerability assessment, and security research."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

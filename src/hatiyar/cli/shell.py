@@ -13,12 +13,15 @@ COMMANDS = [
     "help",
     "list",
     "ls",
+    "cd",
     "search",
     "use",
+    "select",
     "info",
     "set",
     "show",
     "run",
+    "katta",
     "exploit",
     "back",
     "clear",
@@ -51,7 +54,7 @@ def start_shell() -> None:
                 prompt_text = f"hatiyar({context})> "
             else:
                 prompt_text = "hatiyar> "
-            
+
             user_input = session.prompt(prompt_text).strip()
 
             if not user_input:

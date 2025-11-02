@@ -7,7 +7,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "hatiyar",
-      description: "Modular Python Security Toolkit for Penetration Testing",
+      description: "Security toolkit designed for penetration testing, vulnerability assessment, and security research.",
       social: [
         {
           icon: "github",

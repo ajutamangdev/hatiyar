@@ -37,8 +37,6 @@ class Module(ModuleBase):
 
     NAME = "ec2_enumeration"
     DESCRIPTION = "Comprehensive AWS EC2, VPC, and networking resource enumeration"
-    AUTHOR = "hatiyar"
-    VERSION = "2.0"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"
     PLATFORM = ["aws"]

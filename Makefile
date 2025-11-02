@@ -74,7 +74,7 @@ clean: ## Remove build artifacts and cache files
 ##@ Information
 
 info: ## Display project information
-	@echo "hatiyar - Python Security Toolkit"
+	@echo "hatiyar - security toolkit designed for penetration testing, vulnerability assessment, and security research."
 	@echo "======================================"
 	@echo "Python version: $(shell $(PYTHON) --version)"
 	@echo "UV version: $(shell bash -c 'source $(VENV_DIR)/bin/activate 2>/dev/null; uvx --version 2>/dev/null || echo not installed')"

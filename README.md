@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-> A modular Python security toolkit for penetration testing, vulnerability assessment, and security research.
+> Security toolkit designed for penetration testing, vulnerability assessment, and security research.
 
 ⚠️ **IMPORTANT:** Hatiyar is intended for **educational, research, and defensive security use only**.  
 Do **not** use this software on systems you do not own or do not have explicit written permission to test. Misuse may result in civil or criminal liability.
@@ -18,7 +18,7 @@ Do **not** use this software on systems you do not own or do not have explicit w
 
 ## Overview
 
-**Hatiyar** is a python security toolkit for penetration testing.
+**Hatiyar** is a security toolkit designed for penetration testing, vulnerability assessment, and security research.
 
 It provides:
 - **Interactive CLI (REPL)** - Metasploit-like shell for exploring and executing security modules

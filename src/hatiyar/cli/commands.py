@@ -10,7 +10,10 @@ manager = ModuleManager()
 active_module: Optional[Any] = None
 active_module_name: Optional[str] = None
 module_options: Dict[str, Any] = {}
-current_context: str = ""  # Track current navigation context (e.g., "cloud", "cloud.aws")
+global_options: Dict[str, Any] = {}  # Global options shared across modules
+current_context: str = (
+    ""  # Track current navigation context (e.g., "cloud", "cloud.aws")
+)
 
 # Constants
 CATEGORIES_INFO = [
@@ -44,13 +47,16 @@ def handle_command(command: str, console) -> None:
         "cls": lambda: clear_screen(console),
         "list": lambda: handle_list(args, console),
         "ls": lambda: handle_list(args, console),
+        "cd": lambda: handle_cd(args, console),
         "reload": lambda: handle_reload(console),
         "search": lambda: handle_search(args, console),
         "info": lambda: handle_info(args, console),
         "use": lambda: handle_use(args, console),
+        "select": lambda: handle_use(args, console),
         "set": lambda: handle_set(args, console),
         "show": lambda: handle_show(args, console),
         "run": lambda: handle_run(console),
+        "katta": lambda: handle_run(console),
         "exploit": lambda: handle_run(console),
         "back": lambda: handle_back(console),
     }
@@ -70,14 +76,18 @@ def show_help(console) -> None:
         "[yellow]Navigation:[/yellow]\n"
         "  ls/list                - Show categories or list modules\n"
         "  ls <category>          - List modules in category (cve, cloud, enumeration, platforms)\n"
+        "  cd <path>              - Navigate to category or namespace (e.g., cd cloud, cd aws)\n"
+        "  cd ..                  - Navigate up one level\n"
+        "  cd                     - Return to root\n"
         "  search <query>         - Search for modules\n\n"
         "[yellow]Module Operations:[/yellow]\n"
-        "  use <module>           - Select a module (e.g., cve.2021.CVE-2021-41773)\n"
+        "  use/select <module>    - Select a module (short name works in context, e.g., 'ec2')\n"
         "  info <module?>         - Show detailed module information\n"
         "  show options           - Display current module options\n"
-        "  set <option> <value>   - Configure module option\n"
-        "  run/exploit            - Execute the loaded module\n"
-        "  back                   - Unload current module\n\n"
+        "  show global            - Display global options (AWS_PROFILE, AWS_REGION, etc.)\n"
+        "  set <option> <value>   - Configure module or global option\n"
+        "  run/katta/exploit      - Execute the loaded module\n"
+        "  back                   - Unload current module or navigate up\n\n"
         "[yellow]Utility:[/yellow]\n"
         "  reload                 - Reload modules from YAML files\n"
         "  clear                  - Clear the console\n"
@@ -109,7 +119,7 @@ def handle_reload(console) -> None:
 def handle_list(args: List[str], console) -> None:
     """Handle list/ls command"""
     global current_context
-    
+
     if not args:
         # If we're in a context, show that context's contents
         if current_context:
@@ -123,7 +133,7 @@ def handle_list(args: List[str], console) -> None:
             show_categories(console)
     else:
         category_or_namespace = args[0].lower()
-        
+
         # Set the current context
         current_context = category_or_namespace
 
@@ -134,11 +144,72 @@ def handle_list(args: List[str], console) -> None:
             show_category_modules(category_or_namespace, console)
 
 
+def handle_cd(args: List[str], console) -> None:
+    """Handle cd command for navigation"""
+    global current_context
+
+    if not args:
+        # cd with no args goes to root
+        current_context = ""
+        console.print("[cyan]Navigated to root[/cyan]")
+        show_categories(console)
+        return
+
+    target = args[0].lower()
+
+    # Handle cd ..
+    if target == "..":
+        if not current_context:
+            console.print("[yellow]Already at root level[/yellow]")
+            return
+
+        # Navigate up one level
+        if "." in current_context:
+            # From cloud.aws -> cloud
+            current_context = current_context.rsplit(".", 1)[0]
+            console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+
+            # Show the new context
+            if current_context in manager.namespaces:
+                show_namespace_modules(current_context, console)
+            else:
+                show_category_modules(current_context, console)
+        else:
+            # From cloud -> root
+            current_context = ""
+            console.print("[cyan]Navigated to root[/cyan]")
+            show_categories(console)
+        return
+
+    # Handle cd to specific location
+    # If in context, try to append to current context first
+    if current_context and "." not in target:
+        full_path = f"{current_context}.{target}"
+        if full_path in manager.namespaces:
+            current_context = full_path
+            console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+            show_namespace_modules(current_context, console)
+            return
+
+    # Try as absolute path
+    if target in manager.namespaces:
+        current_context = target
+        console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+        show_namespace_modules(current_context, console)
+    elif target in dict(CATEGORIES_INFO):
+        current_context = target
+        console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+        show_category_modules(target, console)
+    else:
+        console.print(f"[red]Invalid path:[/red] {target}")
+        console.print("[dim]Use [cyan]ls[/cyan] to see available paths[/dim]")
+
+
 def show_categories(console) -> None:
     """Display available module categories"""
     global current_context
     current_context = ""  # Reset context when showing categories
-    
+
     table = Table(title="", show_header=True, header_style="bold magenta")
     table.add_column("Category", style="cyan bold", no_wrap=True, width=15)
     table.add_column("Description", style="dim")
@@ -184,17 +255,21 @@ def show_namespace_modules(namespace: str, console) -> None:
 
     table = Table(title=f"{namespace_name} Modules ({len(modules)})")
     table.add_column("#", style="dim", justify="right", width=4)
-    table.add_column("Module Path", style="cyan")
+    table.add_column("Module", style="cyan")  # Changed from "Module Path"
     table.add_column("Name", style="green")
     table.add_column("Description", style="dim")
 
     for idx, m in enumerate(modules, 1):
         desc = truncate_string(m.get("description", ""), 60)
-        table.add_row(str(idx), m["path"], m.get("name", "Unknown"), desc)
+        # Extract short name (e.g., "ec2" from "cloud.aws.ec2")
+        short_name = m["path"].split(".")[-1]
+        table.add_row(str(idx), short_name, m.get("name", "Unknown"), desc)
 
     console.print(table)
+    # Show example with short name
+    example_short = modules[0]["path"].split(".")[-1]
     console.print(
-        f"\n[dim]Use: [cyan]use {modules[0]['path']}[/cyan] to load a module[/dim]"
+        f"\n[dim]Use: [cyan]select {example_short}[/cyan] to load a module[/dim]"
     )
 
 
@@ -366,11 +441,11 @@ def display_module_options(module: Any, opts: Dict, console) -> None:
 
 def handle_use(args: List[str], console) -> None:
     """Handle use command"""
-    global active_module, active_module_name, module_options
+    global active_module, active_module_name, module_options, current_context
 
     if not args:
-        console.print("[red]Usage: use <module>[/red]")
-        console.print("[dim]Example: use cve.2021.CVE-2021-41773[/dim]")
+        console.print("[red]Usage: use/select <module>[/red]")
+        console.print("[dim]Example: select ec2 (when in cloud.aws context)[/dim]")
         console.print(
             "[dim]Tip: Use [cyan]ls <category>[/cyan] to browse modules[/dim]"
         )
@@ -380,15 +455,48 @@ def handle_use(args: List[str], console) -> None:
 
     # Check if it's a namespace (e.g., cloud.aws)
     if module_name in manager.namespaces:
-        # Show submodules instead of loading
+        # Update context and show submodules instead of loading
+        current_context = module_name
         show_namespace_modules(module_name, console)
         return
 
-    active_module = manager.load_module(module_name)
+    # If we're in a context and user provides short name, expand it
+    if current_context and "." not in module_name:
+        # First, try direct path in current context (e.g., cloud.ec2)
+        full_path = f"{current_context}.{module_name}"
+        test_module = manager.load_module(full_path, silent=True)
+
+        if test_module:
+            module_name = full_path
+            active_module = test_module
+        else:
+            # If not found, search in all sub-namespaces
+            # For example, if in "cloud" context, search cloud.aws.ec2, cloud.azure.ec2, etc.
+            found = False
+            for namespace in manager.namespaces:
+                if namespace.startswith(current_context + "."):
+                    candidate = f"{namespace}.{module_name}"
+                    test_module = manager.load_module(candidate, silent=True)
+                    if test_module:
+                        module_name = candidate
+                        active_module = test_module
+                        found = True
+                        break
+
+            # If still not found, try loading as is (with error messages this time)
+            if not found:
+                active_module = manager.load_module(module_name)
+    else:
+        active_module = manager.load_module(module_name)
 
     if active_module:
         active_module_name = module_name
         module_options = getattr(active_module, "options", {}).copy()
+
+        # Apply global options to module options
+        for key, value in global_options.items():
+            if key in module_options:
+                module_options[key] = value
 
         console.print(f"[green]Module loaded:[/green] [bold]{module_name}[/bold]")
         display_quick_module_info(active_module, console)
@@ -416,22 +524,49 @@ def display_quick_module_info(module: Any, console) -> None:
 
 
 def handle_set(args: List[str], console) -> None:
-    """Handle set command"""
-    global module_options
-
-    if not active_module:
-        console.print(
-            "[red]No module loaded. Use [cyan]use <module>[/cyan] first.[/red]"
-        )
-        return
+    """Handle set command - supports global options (AWS_PROFILE, AWS_REGION, etc.)"""
+    global module_options, global_options
 
     if len(args) < 2:
         console.print("[red]Usage: set <option> <value>[/red]")
-        console.print("[dim]Example: set RHOST 192.168.1.100[/dim]")
+        console.print("[dim]Example: set AWS_PROFILE myprofile[/dim]")
+        console.print(
+            "[dim]Global options: AWS_PROFILE, AWS_REGION, ACCESS_KEY, SECRET_KEY[/dim]"
+        )
         return
 
     key = args[0].upper()
     value = " ".join(args[1:])
+
+    # Global options that persist across modules
+    GLOBAL_OPTIONS = [
+        "AWS_PROFILE",
+        "AWS_REGION",
+        "ACCESS_KEY",
+        "SECRET_KEY",
+        "SESSION_TOKEN",
+    ]
+
+    # If it's a global option, store it globally
+    if key in GLOBAL_OPTIONS:
+        global_options[key] = value
+        # Also update current module if loaded
+        if active_module and key in module_options:
+            if hasattr(active_module, "set_option"):
+                active_module.set_option(key, value)
+            module_options[key] = value
+        console.print(
+            f"[green]{key} => [bold]{value}[/bold][/green] [dim](global)[/dim]"
+        )
+        return
+
+    # For non-global options, require a module to be loaded
+    if not active_module:
+        console.print(
+            "[red]No module loaded. Use [cyan]use <module>[/cyan] first.[/red]"
+        )
+        console.print("[dim]Or set global options: AWS_PROFILE, AWS_REGION[/dim]")
+        return
 
     if hasattr(active_module, "set_option"):
         if active_module.set_option(key, value):
@@ -450,13 +585,46 @@ def handle_show(args: List[str], console) -> None:
     """Handle show command"""
     if not args:
         console.print("[red]Usage: show <what>[/red]")
-        console.print("[dim]Available: [cyan]show options[/cyan][/dim]")
+        console.print(
+            "[dim]Available: [cyan]show options[/cyan], [cyan]show global[/cyan][/dim]"
+        )
         return
 
     if args[0] == "options":
         show_module_options(console)
+    elif args[0] == "global":
+        show_global_options(console)
     else:
         console.print(f"[red]Unknown show target:[/red] {args[0]}")
+        console.print(
+            "[dim]Available: [cyan]show options[/cyan], [cyan]show global[/cyan][/dim]"
+        )
+
+
+def show_global_options(console) -> None:
+    """Display global options"""
+    if not global_options:
+        console.print("[yellow]No global options set[/yellow]")
+        console.print(
+            "[dim]Global options: AWS_PROFILE, AWS_REGION, ACCESS_KEY, SECRET_KEY[/dim]"
+        )
+        console.print(
+            "[dim]Use: [cyan]set AWS_PROFILE myprofile[/cyan] to set global options[/dim]"
+        )
+        return
+
+    table = Table(title="Global Options")
+    table.add_column("Option", style="yellow", no_wrap=True)
+    table.add_column("Value", style="green")
+
+    for k, v in global_options.items():
+        display_value = mask_sensitive_value(k, v)
+        table.add_row(k, display_value)
+
+    console.print(table)
+    console.print(
+        "\n[dim]These options are automatically applied to all AWS modules[/dim]"
+    )
 
 
 def show_module_options(console) -> None:
@@ -470,6 +638,7 @@ def show_module_options(console) -> None:
     table.add_column("Value", style="green")
     table.add_column("Required", style="red", justify="center")
     table.add_column("Type", style="cyan", justify="center")
+    table.add_column("Source", style="dim", justify="center")
 
     required_opts = getattr(active_module, "REQUIRED_OPTIONS", [])
 
@@ -477,11 +646,17 @@ def show_module_options(console) -> None:
         is_required = "Yes" if k in required_opts else "No"
         display_value = mask_sensitive_value(k, v)
         val_type = type(v).__name__
+        # Check if this option came from global settings
+        source = "global" if k in global_options else "module"
 
-        table.add_row(k, display_value, is_required, val_type)
+        table.add_row(k, display_value, is_required, val_type, source)
 
     console.print(table)
     console.print("\n[dim]Use [cyan]set <option> <value>[/cyan] to configure[/dim]")
+    if any(k in global_options for k in module_options.keys()):
+        console.print(
+            "[dim]Options marked 'global' are inherited from global settings[/dim]"
+        )
 
 
 def handle_run(console) -> None:
@@ -499,6 +674,15 @@ def handle_run(console) -> None:
         return
 
     try:
+        # Apply all module options (including global options) to the module before running
+        if hasattr(active_module, "options"):
+            for key, value in module_options.items():
+                if hasattr(active_module, "set_option"):
+                    active_module.set_option(key, value)
+                else:
+                    # Directly set in module's options dict
+                    active_module.options[key] = value
+
         result = active_module.run()
         display_run_result(result, console)
     except Exception as e:
