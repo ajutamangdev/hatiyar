@@ -32,3 +32,43 @@ modules:
     subcategory: "aws"
     cloud_provider: "AWS"
     description: "Comprehensive IAM enumeration including users, roles, groups, policies, MFA status, and security findings"
+  
+  - id: lambda_enumeration
+    name: "Lambda Enumeration"
+    module_path: "cloud.aws.lambda"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Lambda function enumeration including layers, event sources, deprecated runtimes, and security analysis"
+  
+  - id: database_enumeration
+    name: "Database Enumeration"
+    module_path: "cloud.aws.database"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS database enumeration including RDS, Aurora, DynamoDB, ElastiCache with encryption and backup analysis"
+  
+  - id: container_enumeration
+    name: "Container Services Enumeration"
+    module_path: "cloud.aws.container"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS container services enumeration including ECS, EKS, ECR with image scanning and security analysis"
+  
+  - id: route53_enumeration
+    name: "Route53 DNS Enumeration"
+    module_path: "cloud.aws.route53"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Route53 DNS enumeration including hosted zones, records, health checks, DNSSEC, and domain registrations"
+  
+  - id: amplify_enumeration
+    name: "Amplify Enumeration"
+    module_path: "cloud.aws.amplify"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Amplify application enumeration including branches, domains, webhooks, CI/CD, and environment variables"

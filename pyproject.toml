@@ -1,6 +1,6 @@
 [project]
 name = "hatiyar"
-version = "0.1.0"
+version = "1.0.0"
 description = "security toolkit designed for penetration testing, vulnerability assessment, and security research."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -25,5 +25,20 @@ dependencies = [
     "virtualenv>=20.35.1",
 ]
 
+
 [project.scripts]
 hatiyar = "hatiyar.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hatiyar*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]

@@ -1,4 +1,4 @@
-"""Base classes for all modules"""
+"""Base classes for modules"""
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
@@ -9,7 +9,7 @@ console = Console()
 
 
 class ModuleType(Enum):
-    """Enumeration of supported module types"""
+    """Module types"""
 
     CVE = "cve"
     ENUMERATION = "enumeration"
@@ -18,24 +18,17 @@ class ModuleType(Enum):
 
 
 class ModuleBase(ABC):
-    """
-    Abstract base class for all hatiyar modules.
+    """Base class for all modules"""
 
-    All modules must inherit from this class and implement the run() method.
-    """
-
-    # Module metadata (override in subclasses)
     NAME: str = "base_module"
     DESCRIPTION: str = ""
     AUTHOR: str = "Unknown"
     VERSION: str = "1.0"
     MODULE_TYPE: ModuleType = ModuleType.AUXILIARY
 
-    # Module classification
     CATEGORY: str = "misc"
     PLATFORM: List[str] = ["all"]
 
-    # Module configuration
     OPTIONS: Dict[str, Any] = {}
     REQUIRED_OPTIONS: List[str] = []
 
@@ -44,16 +37,7 @@ class ModuleBase(ABC):
         self.results: Dict[str, Any] = {}
 
     def set_option(self, key: str, value: Any) -> bool:
-        """
-        Set a module option with automatic type conversion.
-
-        Args:
-            key: Option name (case-insensitive)
-            value: Option value
-
-        Returns:
-            True if option was set successfully, False otherwise
-        """
+        """Set module option with type conversion"""
         key_upper = key.upper()
 
         if key_upper not in self.options:
@@ -64,11 +48,11 @@ class ModuleBase(ABC):
             self.options[key_upper] = converted_value
             return True
         except (ValueError, AttributeError, TypeError) as e:
-            console.print(f"[red]Invalid value type for {key}: {e}[/red]")
+            console.print(f"[red]✗ Invalid value for {key}: {e}[/red]")
             return False
 
     def _convert_option_value(self, key: str, value: Any) -> Any:
-        """Convert option value to the appropriate type"""
+        """Convert option value to type"""
         current_value = self.options[key]
 
         if isinstance(current_value, bool):
@@ -81,25 +65,20 @@ class ModuleBase(ABC):
             return value
 
     def get_option(self, key: str) -> Optional[Any]:
-        """Get the value of a module option"""
+        """Get module option value"""
         return self.options.get(key.upper())
 
     def validate_options(self) -> bool:
-        """
-        Validate that all required options are set.
-
-        Returns:
-            True if all required options are valid, False otherwise
-        """
+        """Validate required options are set"""
         for opt in self.REQUIRED_OPTIONS:
             value = self.options.get(opt)
             if not self._is_valid_option_value(value):
-                console.print(f"[red]Required option not set: {opt}[/red]")
+                console.print(f"[red]✗ Required: {opt}[/red]")
                 return False
         return True
 
     def _is_valid_option_value(self, value: Any) -> bool:
-        """Check if an option value is valid (not None or empty string)"""
+        """Check if option value is valid"""
         if value is None:
             return False
         if isinstance(value, str) and not value.strip():
@@ -108,90 +87,65 @@ class ModuleBase(ABC):
 
     @abstractmethod
     def run(self) -> Dict[str, Any]:
-        """
-        Execute the module.
-
-        Returns:
-            Dictionary containing execution results with at least a 'success' key
-        """
+        """Execute the module"""
         pass
 
     def cleanup(self) -> None:
-        """Cleanup resources after module execution (override if needed)"""
+        """Cleanup resources after execution"""
         pass
 
 
 class CVEModule(ModuleBase):
-    """
-    Base class for CVE exploit modules.
-
-    Provides a structured workflow: check vulnerability -> exploit
-    """
+    """Base class for CVE exploit modules"""
 
     MODULE_TYPE = ModuleType.CVE
 
-    # CVE-specific metadata (all optional)
     CVE: str = ""
     CVSS_SCORE: Optional[float] = None
     CVSS_VECTOR: Optional[str] = None
     DISCLOSURE_DATE: Optional[str] = None
     AFFECTED_VERSIONS: List[str] = []
     PATCHED_VERSIONS: List[str] = []
-    RANK: Optional[str] = None  # excellent, great, good, normal, low
+    RANK: Optional[str] = None
     REFERENCES: List[str] = []
     TAGS: List[str] = []
     CWE: Optional[str] = None
 
     @abstractmethod
     def check(self) -> bool:
-        """
-        Check if the target is vulnerable.
-
-        Returns:
-            True if target appears vulnerable, False otherwise
-        """
+        """Check if target is vulnerable"""
         pass
 
     @abstractmethod
     def exploit(self) -> Dict[str, Any]:
-        """
-        Exploit the vulnerability.
-
-        Returns:
-            Dictionary containing exploitation results
-        """
+        """Exploit the vulnerability"""
         pass
 
     def run(self) -> Dict[str, Any]:
-        """Execute the CVE module: check then exploit"""
+        """Execute CVE module"""
         if not self.validate_options():
             return {"success": False, "error": "Invalid options"}
 
-        console.print(f"[cyan]Targeting {self.options.get('RHOST', 'N/A')}...[/cyan]\n")
+        target = self.options.get("RHOST", "N/A")
+        console.print(f"[bold cyan]→ Target:[/bold cyan] {target}\n")
 
-        console.print("[bold]Exploitation[/bold]")
+        console.print("[bold]Exploiting...[/bold]")
         return self.exploit()
 
 
 class EnumerationModule(ModuleBase):
-    """Base class for enumeration and reconnaissance modules"""
+    """Base class for enumeration modules"""
 
     MODULE_TYPE = ModuleType.ENUMERATION
-
     TARGET_TYPE: str = "network"
 
     @abstractmethod
     def enumerate(self) -> Dict[str, Any]:
-        """
-        Perform enumeration.
-
-        Returns:
-            Dictionary containing enumeration results
-        """
+        """Perform enumeration"""
         pass
 
     def run(self) -> Dict[str, Any]:
-        """Execute the enumeration module"""
+        """Execute enumeration"""
         if not self.validate_options():
             return {"success": False, "error": "Invalid options"}
 
@@ -202,32 +156,21 @@ class CloudModule(ModuleBase):
     """Base class for cloud security modules"""
 
     MODULE_TYPE = ModuleType.CLOUD
-
-    CLOUD_PROVIDER: str = ""  # aws, azure, gcp
+    CLOUD_PROVIDER: str = ""
     REQUIRES_AUTH: bool = True
 
     @abstractmethod
     def enumerate_resources(self) -> List[Dict[str, Any]]:
-        """
-        Enumerate cloud resources.
-
-        Returns:
-            List of discovered resources
-        """
+        """Enumerate cloud resources"""
         pass
 
     @abstractmethod
     def check_misconfigurations(self) -> List[Dict[str, Any]]:
-        """
-        Check for security misconfigurations.
-
-        Returns:
-            List of identified misconfigurations
-        """
+        """Check for misconfigurations"""
         pass
 
     def run(self) -> Dict[str, Any]:
-        """Execute the cloud module: enumerate and check"""
+        """Execute cloud module"""
         if not self.validate_options():
             return {"success": False, "error": "Invalid options"}
 

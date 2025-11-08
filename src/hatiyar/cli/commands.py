@@ -1,39 +1,33 @@
-"""Command handlers for hatiyar CLI"""
+"""Command handlers for CLI"""
 
 from typing import Optional, List, Dict, Any
 from rich.table import Table
 from rich.panel import Panel
 from hatiyar.core.modules import ModuleManager
 
-# Global state
 manager = ModuleManager()
 active_module: Optional[Any] = None
 active_module_name: Optional[str] = None
 module_options: Dict[str, Any] = {}
-global_options: Dict[str, Any] = {}  # Global options shared across modules
-current_context: str = (
-    ""  # Track current navigation context (e.g., "cloud", "cloud.aws")
-)
+global_options: Dict[str, Any] = {}
+current_context: str = ""
 
-# Constants
 CATEGORIES_INFO = [
-    ("cve", "CVE exploit modules"),
-    ("cloud", "Cloud platform security (AWS, Azure, GCP)"),
-    ("enumeration", "Reconnaissance and enumeration tools"),
-    ("platforms", "Platform-specific exploits and tools"),
-    ("misc", "Miscellaneous modules"),
+    ("cve", "CVE exploits"),
+    ("cloud", "Cloud security (AWS, Azure, GCP)"),
+    ("enumeration", "Recon & enumeration"),
+    ("platforms", "Platforms & services"),
+    ("misc", "Miscellaneous"),
 ]
 
 SENSITIVE_KEYWORDS = ["PASSWORD", "KEY", "SECRET", "TOKEN"]
 
 
 def get_current_context() -> str:
-    """Get the current navigation context"""
     return current_context
 
 
 def handle_command(command: str, console) -> None:
-    """Route commands to appropriate handlers"""
     tokens = command.split()
     if not tokens:
         return
@@ -41,7 +35,7 @@ def handle_command(command: str, console) -> None:
     cmd = tokens[0].lower()
     args = tokens[1:]
 
-    command_handlers = {
+    handlers = {
         "help": lambda: show_help(console),
         "clear": lambda: clear_screen(console),
         "cls": lambda: clear_screen(console),
@@ -61,83 +55,67 @@ def handle_command(command: str, console) -> None:
         "back": lambda: handle_back(console),
     }
 
-    handler = command_handlers.get(cmd)
+    handler = handlers.get(cmd)
     if handler:
         handler()
     else:
         console.print(f"[red]Unknown command:[/red] {cmd}")
-        console.print("[dim]Type [cyan]help[/cyan] for available commands[/dim]")
+        console.print("[dim]Type [cyan]help[/cyan] for help[/dim]")
 
 
 def show_help(console) -> None:
-    """Display help information"""
     help_text = (
-        "[bold cyan]Available Commands[/bold cyan]\n\n"
-        "[yellow]Navigation:[/yellow]\n"
-        "  ls/list                - Show categories or list modules\n"
-        "  ls <category>          - List modules in category (cve, cloud, enumeration, platforms)\n"
-        "  cd <path>              - Navigate to category or namespace (e.g., cd cloud, cd aws)\n"
-        "  cd ..                  - Navigate up one level\n"
-        "  cd                     - Return to root\n"
-        "  search <query>         - Search for modules\n\n"
-        "[yellow]Module Operations:[/yellow]\n"
-        "  use/select <module>    - Select a module (short name works in context, e.g., 'ec2')\n"
-        "  info <module?>         - Show detailed module information\n"
-        "  show options           - Display current module options\n"
-        "  show global            - Display global options (AWS_PROFILE, AWS_REGION, etc.)\n"
-        "  set <option> <value>   - Configure module or global option\n"
-        "  run/katta/exploit      - Execute the loaded module\n"
-        "  back                   - Unload current module or navigate up\n\n"
-        "[yellow]Utility:[/yellow]\n"
-        "  reload                 - Reload modules from YAML files\n"
-        "  clear                  - Clear the console\n"
-        "  exit/quit              - Exit hatiyar\n\n"
+        "[bold cyan]Commands[/bold cyan]\n\n"
+        "[yellow]Navigate:[/yellow]\n"
+        "  ls [category]         Show modules\n"
+        "  cd <path>             Navigate (cd cloud, cd aws, cd ..)\n"
+        "  search <query>        Search modules\n\n"
+        "[yellow]Module:[/yellow]\n"
+        "  use <module>          Select module\n"
+        "  info <module>         Show details\n"
+        "  show options          Display options\n"
+        "  set <opt> <val>       Set option\n"
+        "  run                   Execute (alias: katta, exploit)\n"
+        "  back                  Unload/navigate up\n\n"
+        "[yellow]Util:[/yellow]\n"
+        "  reload                Reload YAML\n"
+        "  clear                 Clear screen\n"
+        "  exit/quit             Exit\n\n"
+        "[dim]Press TAB for completion[/dim]\n"
     )
     console.print(Panel.fit(help_text, title="Help", border_style="cyan"))
 
 
 def clear_screen(console) -> None:
-    """Clear console and show welcome message"""
     console.clear()
-    console.print("[bold green]Welcome to hatiyar![/bold green]")
-    console.print(
-        "Type [bold cyan]help[/bold cyan] for available commands or [cyan]ls[/cyan] to explore.\n"
-    )
+    console.print("[bold green]hatiyar[/bold green] [dim]ready[/dim]")
+    console.print("[dim]Type [cyan]help[/cyan] or press TAB[/dim]\n")
 
 
 def handle_reload(console) -> None:
-    """Reload module registries from YAML without restarting the CLI"""
     global manager
     manager = ModuleManager()
     stats = manager.get_stats()
-    console.print(
-        f"[green]Reloaded modules from YAML.[/green] Total: {stats.get('total_modules', 0)}"
-    )
-    console.print("[dim]Tip: run 'ls cve' to list CVE modules[/dim]")
+    total = stats.get("total_modules", 0)
+    console.print(f"[green]✓[/green] Reloaded {total} modules from YAML")
+    console.print("[dim]Use 'ls' to explore[/dim]")
 
 
 def handle_list(args: List[str], console) -> None:
-    """Handle list/ls command"""
     global current_context
 
     if not args:
-        # If we're in a context, show that context's contents
         if current_context:
-            # Check if it's a namespace (e.g., cloud.aws)
             if current_context in manager.namespaces:
                 show_namespace_modules(current_context, console)
             else:
                 show_category_modules(current_context, console)
         else:
-            # No context, show categories
             show_categories(console)
     else:
         category_or_namespace = args[0].lower()
-
-        # Set the current context
         current_context = category_or_namespace
 
-        # Check if it's a namespace (e.g., cloud.aws)
         if category_or_namespace in manager.namespaces:
             show_namespace_modules(category_or_namespace, console)
         else:
@@ -145,155 +123,126 @@ def handle_list(args: List[str], console) -> None:
 
 
 def handle_cd(args: List[str], console) -> None:
-    """Handle cd command for navigation"""
     global current_context
 
     if not args:
-        # cd with no args goes to root
         current_context = ""
-        console.print("[cyan]Navigated to root[/cyan]")
+        console.print("[cyan]→ root[/cyan]")
         show_categories(console)
         return
 
     target = args[0].lower()
 
-    # Handle cd ..
     if target == "..":
         if not current_context:
-            console.print("[yellow]Already at root level[/yellow]")
+            console.print("[yellow]Already at root[/yellow]")
             return
 
-        # Navigate up one level
         if "." in current_context:
-            # From cloud.aws -> cloud
             current_context = current_context.rsplit(".", 1)[0]
-            console.print(f"[cyan]Navigated to {current_context}[/cyan]")
-
-            # Show the new context
+            console.print(f"[cyan]→ {current_context}[/cyan]")
             if current_context in manager.namespaces:
                 show_namespace_modules(current_context, console)
             else:
                 show_category_modules(current_context, console)
         else:
-            # From cloud -> root
             current_context = ""
-            console.print("[cyan]Navigated to root[/cyan]")
+            console.print("[cyan]→ root[/cyan]")
             show_categories(console)
         return
 
-    # Handle cd to specific location
-    # If in context, try to append to current context first
     if current_context and "." not in target:
         full_path = f"{current_context}.{target}"
         if full_path in manager.namespaces:
             current_context = full_path
-            console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+            console.print(f"[cyan]→ {current_context}[/cyan]")
             show_namespace_modules(current_context, console)
             return
 
-    # Try as absolute path
     if target in manager.namespaces:
         current_context = target
-        console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+        console.print(f"[cyan]→ {current_context}[/cyan]")
         show_namespace_modules(current_context, console)
     elif target in dict(CATEGORIES_INFO):
         current_context = target
-        console.print(f"[cyan]Navigated to {current_context}[/cyan]")
+        console.print(f"[cyan]→ {current_context}[/cyan]")
         show_category_modules(target, console)
     else:
-        console.print(f"[red]Invalid path:[/red] {target}")
-        console.print("[dim]Use [cyan]ls[/cyan] to see available paths[/dim]")
+        console.print(f"[red]Path not found:[/red] {target}")
+        console.print("[dim]Use 'ls' to see paths[/dim]")
 
 
 def show_categories(console) -> None:
-    """Display available module categories"""
     global current_context
-    current_context = ""  # Reset context when showing categories
+    current_context = ""
 
-    table = Table(title="", show_header=True, header_style="bold magenta")
-    table.add_column("Category", style="cyan bold", no_wrap=True, width=15)
+    table = Table(show_header=True, header_style="bold cyan")
+    table.add_column("Category", style="cyan bold", width=15)
     table.add_column("Description", style="dim")
 
     for cat, desc in CATEGORIES_INFO:
         table.add_row(cat, desc)
 
     console.print(table)
-    console.print(
-        "[dim]Use: [cyan]ls <category>[/cyan] to see modules in that category[/dim]"
-    )
+    console.print("[dim]→ [cyan]ls <category>[/cyan] to explore[/dim]")
 
 
 def show_category_modules(category: str, console) -> None:
-    """Display modules in a specific category"""
     modules = manager.list_modules(category)
 
     if not modules:
-        console.print(f"[red]No modules found in category:[/red] {category}")
-        console.print("[dim]Use: [cyan]ls[/cyan] to see available categories[/dim]")
+        console.print(f"[red]No modules in:[/red] {category}")
+        console.print("[dim]Use 'ls' to see categories[/dim]")
         return
 
     table = create_module_table(category, modules)
     console.print(table)
-    console.print(
-        f"\n[dim]Use: [cyan]use {modules[0]['path']}[/cyan] to load a module[/dim]"
-    )
+    example = modules[0]["path"]
+    console.print(f"\n[dim]Try: [cyan]use {example}[/cyan][/dim]")
 
 
 def show_namespace_modules(namespace: str, console) -> None:
-    """Display modules under a namespace (e.g., cloud.aws)"""
     modules = manager.get_namespace_modules(namespace)
 
     if not modules:
-        console.print(f"[red]No modules found in namespace:[/red] {namespace}")
+        console.print(f"[red]No modules in:[/red] {namespace}")
         return
 
-    # Extract the namespace name (e.g., "AWS" from "cloud.aws")
     namespace_parts = namespace.split(".")
     namespace_name = (
         namespace_parts[-1].upper() if namespace_parts else namespace.upper()
     )
 
     table = Table(title=f"{namespace_name} Modules ({len(modules)})")
-    table.add_column("#", style="dim", justify="right", width=4)
-    table.add_column("Module", style="cyan")  # Changed from "Module Path"
+    table.add_column("#", style="dim", justify="right", width=6)
+    table.add_column("Module", style="cyan bold", width=20)
     table.add_column("Name", style="green")
-    table.add_column("Description", style="dim")
 
     for idx, m in enumerate(modules, 1):
-        desc = truncate_string(m.get("description", ""), 60)
-        # Extract short name (e.g., "ec2" from "cloud.aws.ec2")
         short_name = m["path"].split(".")[-1]
-        table.add_row(str(idx), short_name, m.get("name", "Unknown"), desc)
+        table.add_row(str(idx), short_name, m.get("name", "Unknown"))
 
     console.print(table)
-    # Show example with short name
     example_short = modules[0]["path"].split(".")[-1]
-    console.print(
-        f"\n[dim]Use: [cyan]select {example_short}[/cyan] to load a module[/dim]"
-    )
+    console.print(f"\n[dim]Try: [cyan]select {example_short}[/cyan][/dim]")
 
 
 def create_module_table(category: str, modules: List[Dict]) -> Table:
-    """Create a formatted table for module listing"""
     table = Table(title=f"{category.upper()} Modules ({len(modules)})")
-    table.add_column("#", style="dim", justify="right", width=4)
+    table.add_column("#", style="dim", justify="right", width=6)
     table.add_column("Module Path", style="cyan")
     table.add_column("Name", style="green")
 
     if category == "cve":
         table.add_column("CVE ID", style="yellow")
 
-    table.add_column("Description", style="dim")
-
     for idx, m in enumerate(modules, 1):
-        desc = truncate_string(m.get("description", ""), 60)
-
         if category == "cve":
             table.add_row(
-                str(idx), m["path"], m.get("name", "Unknown"), m.get("cve", "N/A"), desc
+                str(idx), m["path"], m.get("name", "Unknown"), m.get("cve", "N/A")
             )
         else:
-            table.add_row(str(idx), m["path"], m.get("name", "Unknown"), desc)
+            table.add_row(str(idx), m["path"], m.get("name", "Unknown"))
 
     return table
 
@@ -508,7 +457,7 @@ def handle_use(args: List[str], console) -> None:
 
 
 def display_quick_module_info(module: Any, console) -> None:
-    """Display quick module info after loading"""
+    """Show quick module info"""
     name = getattr(module, "NAME", "Unknown")
     desc = getattr(module, "DESCRIPTION", "")
 
@@ -516,11 +465,23 @@ def display_quick_module_info(module: Any, console) -> None:
     if desc:
         console.print(f"[dim]{truncate_string(desc, 100)}[/dim]")
 
-    console.print("\n[dim]Next steps:[/dim]")
-    console.print("   [cyan]info[/cyan]         - View detailed information")
-    console.print("   [cyan]show options[/cyan] - See configuration options")
-    console.print("   [cyan]set <opt> <val>[/cyan] - Configure module")
-    console.print("   [cyan]run[/cyan]          - Execute module")
+    # Quick command reference
+    cmd_table = Table(show_header=True, box=None, padding=(0, 1))
+    cmd_table.add_column("Command", style="cyan bold", width=22)
+    cmd_table.add_column("Description", style="dim", width=35)
+
+    cmd_table.add_row("info", "Module information")
+    cmd_table.add_row("show options", "Display module options")
+    cmd_table.add_row(
+        "[cyan]set[/cyan] [yellow]<opt>[/yellow] [yellow]<val>[/yellow]",
+        "Set option value",
+    )
+    cmd_table.add_row(
+        "[cyan]run[/cyan] / [cyan]katta[/cyan] / [cyan]exploit[/cyan]", "Execute module"
+    )
+
+    console.print()
+    console.print(cmd_table)
 
 
 def handle_set(args: List[str], console) -> None:
@@ -660,33 +621,30 @@ def show_module_options(console) -> None:
 
 
 def handle_run(console) -> None:
-    """Handle run/exploit command"""
+    """Execute module"""
     if not active_module:
-        console.print(
-            "[red]No module loaded. Use [cyan]use <module>[/cyan] first.[/red]"
-        )
+        console.print("[red]✗ No module loaded[/red]")
+        console.print("[dim]Use: [cyan]use <module>[/cyan][/dim]")
         return
 
-    console.print(f"[bold yellow]Executing {active_module_name}...[/bold yellow]\n")
+    console.print(f"[bold cyan]═══ Executing: {active_module_name} ═══[/bold cyan]\n")
 
     if not hasattr(active_module, "run"):
-        console.print("[red]Module does not have a run method[/red]")
+        console.print("[red]✗ Module missing run method[/red]")
         return
 
     try:
-        # Apply all module options (including global options) to the module before running
         if hasattr(active_module, "options"):
             for key, value in module_options.items():
                 if hasattr(active_module, "set_option"):
                     active_module.set_option(key, value)
                 else:
-                    # Directly set in module's options dict
                     active_module.options[key] = value
 
         result = active_module.run()
         display_run_result(result, console)
     except Exception as e:
-        console.print("\n[bold red]Error during execution:[/bold red]")
+        console.print("\n[bold red]✗ Execution failed:[/bold red]")
         console.print(f"[red]{e}[/red]")
 
         import traceback
@@ -695,43 +653,39 @@ def handle_run(console) -> None:
 
 
 def display_run_result(result: Any, console) -> None:
-    """Display module execution result"""
+    """Display execution result"""
     if isinstance(result, dict):
         if result.get("success"):
-            console.print("\n[bold green]Module executed successfully[/bold green]")
+            console.print("\n[bold green]✓ Success[/bold green]")
             if result.get("data"):
-                console.print("\n[cyan]Result:[/cyan]")
+                console.print("\n[cyan]Data:[/cyan]")
                 console.print(result["data"])
         else:
-            console.print("\n[bold red]Execution failed[/bold red]")
+            console.print("\n[bold red]✗ Failed[/bold red]")
             if result.get("error"):
                 console.print(f"[red]Error:[/red] {result['error']}")
     else:
-        console.print("\n[yellow]Module completed[/yellow]")
+        console.print("\n[dim]Execution complete[/dim]")
 
 
 def handle_back(console) -> None:
-    """Handle back command - navigate up context or unload module"""
+    """Navigate up or unload module"""
     global active_module, active_module_name, module_options, current_context
 
     if active_module:
-        # If module is loaded, unload it
         active_module = None
         active_module_name = None
         module_options = {}
-        console.print("[yellow]Module unloaded[/yellow]")
+        console.print("[yellow]← Module unloaded[/yellow]")
     elif current_context:
-        # If in a context, navigate up
         if "." in current_context:
-            # From cloud.aws -> cloud
             current_context = current_context.rsplit(".", 1)[0]
-            console.print(f"[yellow]Navigated back to {current_context}[/yellow]")
+            console.print(f"[yellow]← {current_context}[/yellow]")
         else:
-            # From cloud -> root
             current_context = ""
-            console.print("[yellow]Navigated back to root[/yellow]")
+            console.print("[yellow]← root[/yellow]")
     else:
-        console.print("[dim]Already at root level[/dim]")
+        console.print("[dim]Already at root[/dim]")
 
 
 # Utility functions

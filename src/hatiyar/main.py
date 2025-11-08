@@ -105,99 +105,72 @@ if TYPER_AVAILABLE:
 
     @cli.command(name="shell")
     def shell() -> None:
-        """
-        Start the interactive hatiyar shell (REPL).
-
-        The shell provides an interactive environment for exploring modules,
-        setting options, and running exploits with tab completion.
-        """
+        """Start interactive shell with tab completion"""
         try:
             from hatiyar.cli.shell import start_shell  # noqa: E402
         except Exception as e:
-            print(f"Failed to start shell: {e}")
+            print(f"✗ Shell failed: {e}")
             raise typer.Exit(code=1)
 
         start_shell()
 
     @cli.command(name="serve")
     def serve(
-        host: str = typer.Option("0.0.0.0", "--host", "-h", help="Bind host address"),
-        port: int = typer.Option(8000, "--port", "-p", help="Bind port number"),
-        reload: bool = typer.Option(
-            False, "--reload", "-r", help="Enable auto-reload for development"
-        ),
+        host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host"),
+        port: int = typer.Option(8000, "--port", "-p", help="Port"),
+        reload: bool = typer.Option(False, "--reload", "-r", help="Auto-reload"),
     ) -> None:
-        """
-        Audit the Cloud resources via dashboard.
-
-        Launch a web-based interface for managing security assessments through a browser.
+        """Launch web dashboard for cloud auditing
 
         Examples:
-          hatiyar serve                              # Start on 0.0.0.0:8000
-          hatiyar serve --port 8080                  # Custom port
-          hatiyar serve --host 127.0.0.1             # Localhost only
-          hatiyar serve --reload                     # Auto-reload for development
+          hatiyar serve
+          hatiyar serve --port 8080
+          hatiyar serve --host 127.0.0.1
         """
         try:
             import uvicorn  # type: ignore
         except ImportError:
-            console.print("[red]Error: uvicorn is not installed.[/red]")
-            console.print("[yellow]Install it with:[/yellow] pip install uvicorn")
+            console.print("[red]✗ uvicorn not installed[/red]")
+            console.print("[dim]Install: [cyan]pip install uvicorn[/cyan][/dim]")
             raise typer.Exit(code=1)
 
-        console.print(
-            f"[green]Starting hatiyar web server on[/green] http://{host}:{port}"
-        )
-        console.print(f"[cyan]   Dashboard:[/cyan] http://{host}:{port}/")
+        console.print(f"[green]✓ Server starting:[/green] http://{host}:{port}")
+        console.print(f"[cyan]  Dashboard:[/cyan] http://{host}:{port}/")
 
         uvicorn.run("hatiyar.main:app", host=host, port=port, reload=reload)
 
     @cli.command(name="info")
     def info() -> None:
-        """
-        Display system and module statistics.
-
-        Shows version information, module counts by category, and system details.
-        """
+        """Show system and module statistics"""
         from hatiyar.core.modules import ModuleManager  # noqa: E402
 
         manager = ModuleManager()
         stats = manager.get_stats()
 
-        console.print(
-            "\n[bold cyan]hatiyar - security toolkit designed for penetration testing, vulnerability assessment, and security research[/bold cyan]"
-        )
+        console.print("\n[bold cyan]hatiyar[/bold cyan] [dim]pentesting toolkit[/dim]")
         console.print(f"[dim]Version:[/dim] [green]{__version__}[/green]\n")
 
-        console.print("[bold]Module Statistics:[/bold]")
+        console.print("[bold]Modules:[/bold]")
+        console.print(f"  Total: [green]{stats.get('total_modules', 0)}[/green]")
+
+        if stats.get("categories"):
+            for category, count in stats["categories"].items():
+                console.print(f"  {category}: [cyan]{count}[/cyan]")
+
         console.print(
-            f"  • Total modules: [green]{stats.get('total_modules', 0)}[/green]"
+            f"\n[dim]Python {sys.version.split()[0]} • {sys.platform}[/dim]\n"
         )
-
-        if stats.get("modules_by_category"):
-            console.print("\n[bold]Modules by Category:[/bold]")
-            for category, count in stats["modules_by_category"].items():
-                console.print(f"  • {category}: [cyan]{count}[/cyan]")
-
-        console.print(f"\n[dim]Python:[/dim] {sys.version.split()[0]}")
-        console.print(f"[dim]Platform:[/dim] {sys.platform}\n")
 
     @cli.command(name="search")
     def search(
-        query: str = typer.Argument(
-            ..., help="Search query (name, description, CVE ID, category, author)"
-        ),
+        query: str = typer.Argument(..., help="Search term"),
     ) -> None:
-        """
-        Search for security modules by keyword.
-
-        Searches across module names amd CVE IDs).
+        """Search modules by keyword
 
         Examples:
-          hatiyar search grafana          # Search for Grafana-related modules
-          hatiyar search CVE-2021         # Find all 2021 CVEs
-          hatiyar search apache           # Find Apache-related exploits
-          hatiyar search traversal        # Search by vulnerability type
+          hatiyar search grafana
+          hatiyar search CVE-2021
+          hatiyar search apache
         """
         from hatiyar.core.modules import ModuleManager  # noqa: E402
         from rich.table import Table
@@ -206,65 +179,38 @@ if TYPER_AVAILABLE:
         results = manager.search_modules(query)
 
         if not results:
-            console.print(f"[yellow]No modules found matching: {query}[/yellow]")
+            console.print(f"[yellow]✗ No results for:[/yellow] {query}")
             return
 
-        table = Table(title=f"Search Results: '{query}'")
-        table.add_column("#", justify="right", style="cyan")
-        table.add_column("Module Path", style="green")
-        table.add_column("Name", style="yellow")
+        table = Table(title=f"[bold]Search:[/bold] {query}", title_style="cyan")
+        table.add_column("#", width=4, justify="right", style="dim")
+        table.add_column("Path", style="green", width=25)
+        table.add_column("Name", style="cyan bold")
         table.add_column("CVE", style="red")
-        table.add_column("Description", style="dim")
 
         for idx, mod in enumerate(results, 1):
             table.add_row(
                 str(idx),
                 mod.get("path", "N/A"),
                 mod.get("name", "N/A"),
-                mod.get("cve_id", "N/A"),
-                mod.get("description", "N/A")[:50] + "...",
+                mod.get("cve_id", "-"),
             )
 
         console.print(table)
-        console.print(f"\n[dim]Found: {len(results)} module(s)[/dim]\n")
+        console.print(f"\n[dim]✓ Found {len(results)} modules[/dim]\n")
 
     @cli.command(name="run")
     def run_module(
-        module_path: str = typer.Argument(
-            ...,
-            help="Module path (e.g., cve.cve_2021_43798) or CVE ID (e.g., CVE-2021-43798)",
-        ),
-        options: list[str] = typer.Option(
-            [],
-            "--set",
-            "-s",
-            help="Set option (format: KEY=VALUE)",
-            metavar="KEY=VALUE",
-        ),
-        show_info: bool = typer.Option(
-            False, "--info", "-i", help="Show module info before running"
-        ),
+        module_path: str = typer.Argument(..., help="Module path or CVE ID"),
+        options: list[str] = typer.Option([], "--set", "-s", help="KEY=VALUE"),
+        show_info: bool = typer.Option(False, "--info", "-i", help="Show info"),
     ) -> None:
-        """
-        Run a security module directly from the command line.
+        """Run a module directly
 
         Examples:
-          # Run by module path
-          hatiyar run cve.cve_2021_43798 --set RHOST=example.com --set PLUGIN=grafana
-
-          # Run by CVE ID
-          hatiyar run CVE-2021-43798 --set RHOST=example.com --set PLUGIN=grafana
-
-          # Show module info before running
+          hatiyar run cve.cve_2021_43798 --set RHOST=target.com
+          hatiyar run CVE-2021-43798 --set RHOST=target.com --set PLUGIN=grafana
           hatiyar run cve.cve_2021_43798 --info
-
-          # Search for modules first
-          hatiyar search grafana
-
-        Workflow:
-          1. Search for modules: hatiyar search <keyword>
-          2. View module details: hatiyar run <module> --info
-          3. Run with required options: hatiyar run <module> --set OPTION=value
         """
         from hatiyar.core.modules import ModuleManager  # noqa: E402
         from rich.table import Table
@@ -272,49 +218,44 @@ if TYPER_AVAILABLE:
 
         manager = ModuleManager()
 
-        # Load the module
-        console.print(f"[cyan]Loading module:[/cyan] {module_path}")
+        console.print(f"[dim]Loading:[/dim] {module_path}")
         module = manager.load_module(module_path)
 
         if not module:
-            console.print(f"[red]Error:[/red] Module not found: {module_path}")
+            console.print(f"[red]✗ Module not found:[/red] {module_path}")
             raise typer.Exit(code=1)
 
-        console.print(f"[green]✓ Module loaded:[/green] {module.NAME}")
+        console.print(f"[green]✓ Loaded:[/green] {module.NAME}")
 
-        # Show info if requested
         if show_info:
             console.print()
             console.print(
                 Panel(
                     f"[bold]{module.NAME}[/bold]\n\n"
                     f"{module.DESCRIPTION}\n\n"
-                    f"[dim]Author:[/dim] {module.AUTHOR}\n"
-                    f"[dim]Category:[/dim] {module.CATEGORY}",
-                    title=f"Module Info: {module_path}",
+                    f"[dim]Author:[/dim] {module.AUTHOR} | [dim]Category:[/dim] {module.CATEGORY}",
+                    title="Module Info",
                     border_style="cyan",
                 )
             )
 
-        # Parse and set options
         parsed_options = {}
         for opt in options:
             if "=" not in opt:
-                console.print(f"[red]Error:[/red] Invalid option format: {opt}")
-                console.print("[yellow]Use format:[/yellow] KEY=VALUE")
+                console.print(f"[red]✗ Invalid format:[/red] {opt}")
+                console.print("[dim]Use: [cyan]KEY=VALUE[/cyan][/dim]")
                 raise typer.Exit(code=1)
 
             key, value = opt.split("=", 1)
             parsed_options[key] = value
 
-        # Show current options
         if hasattr(module, "OPTIONS"):
             console.print()
-            table = Table(title="Module Options")
-            table.add_column("Option", style="cyan")
-            table.add_column("Current Value", style="yellow")
-            table.add_column("New Value", style="green")
-            table.add_column("Required", style="red")
+            table = Table(title="Options", show_header=True)
+            table.add_column("Name", style="cyan bold", width=20)
+            table.add_column("Current", style="dim")
+            table.add_column("New", style="green")
+            table.add_column("Req", justify="center", width=5)
 
             for opt_name, opt_value in module.OPTIONS.items():
                 new_value = parsed_options.get(opt_name, "")
@@ -322,68 +263,56 @@ if TYPER_AVAILABLE:
 
                 table.add_row(
                     opt_name,
-                    str(opt_value) if opt_value else "[dim]<not set>[/dim]",
-                    str(new_value) if new_value else "[dim]<unchanged>[/dim]",
-                    "Yes" if is_required else "No",
+                    str(opt_value) if opt_value else "[dim]-[/dim]",
+                    str(new_value) if new_value else "[dim]-[/dim]",
+                    "✓" if is_required else "",
                 )
 
             console.print(table)
 
-        # Set options
         for key, value in parsed_options.items():
             if hasattr(module, "set_option"):
                 success = module.set_option(key, value)
                 if success:
-                    console.print(f"[dim]✓ Set {key} = {value}[/dim]")
+                    console.print(f"[dim]  ✓ {key} = {value}[/dim]")
                 else:
-                    console.print(f"[yellow]⚠ Unknown option: {key}[/yellow]")
+                    console.print(f"[yellow]  ⚠ Unknown: {key}[/yellow]")
 
-        # Check required options (after setting them)
         console.print()
         if hasattr(module, "REQUIRED_OPTIONS"):
             missing = []
             for req in module.REQUIRED_OPTIONS:
-                # Check self.options (runtime values) not self.OPTIONS (defaults)
                 if hasattr(module, "options"):
                     val = module.options.get(req)
                     if not val or (isinstance(val, str) and not val.strip()):
                         missing.append(req)
 
             if missing:
+                console.print(f"[red]✗ Missing:[/red] {', '.join(missing)}")
                 console.print(
-                    f"[red]Error:[/red] Missing required options: {', '.join(missing)}"
+                    f"[dim]Set with: [cyan]--set {missing[0]}=value[/cyan][/dim]"
                 )
-                console.print("[yellow]Set them with:[/yellow] --set OPTION=VALUE")
-                console.print()
-                console.print("[cyan]Example:[/cyan]")
-                console.print(f"  hatiyar run {module_path} --set {missing[0]}=value")
                 raise typer.Exit(code=1)
 
-        # Run the module
-        console.print()
-        console.print("[bold cyan]═══ Executing Module ═══[/bold cyan]")
-        console.print()
+        console.print("[bold cyan]═══ Executing ═══[/bold cyan]\n")
 
         try:
             result = module.run()
 
-            console.print()
-            console.print("[bold cyan]═══ Execution Complete ═══[/bold cyan]")
-            console.print()
+            console.print("\n[bold cyan]═══ Complete ═══[/bold cyan]\n")
 
             if result:
                 if isinstance(result, dict):
-                    console.print("[green]✓ Result:[/green]")
+                    console.print("[green]✓ Results:[/green]")
                     for key, value in result.items():
-                        console.print(f"  • {key}: {value}")
+                        console.print(f"  {key}: {value}")
                 else:
-                    console.print(f"[green]✓ Result:[/green] {result}")
+                    console.print(f"[green]✓ {result}[/green]")
             else:
-                console.print("[yellow]Module executed (no result returned)[/yellow]")
+                console.print("[dim]Execution finished[/dim]")
 
         except Exception as e:
-            console.print()
-            console.print(f"[red]✗ Execution failed:[/red] {e}")
+            console.print(f"\n[red]✗ Failed:[/red] {e}")
             raise typer.Exit(code=1)
 
 

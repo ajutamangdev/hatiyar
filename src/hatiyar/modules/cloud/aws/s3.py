@@ -1,4 +1,4 @@
-"""AWS S3 Enumeration Module - Comprehensive S3 Resource Discovery"""
+"""AWS S3 Enumeration Module"""
 
 from typing import Dict, Any, List
 import boto3
@@ -13,26 +13,10 @@ console = Console()
 
 
 class Module(ModuleBase):
-    """
-    AWS S3 Comprehensive Enumeration Module
-
-    Performs complete enumeration of AWS S3 resources including:
-    - S3 Buckets with detailed configuration
-    - Bucket Policies and ACLs
-    - Bucket Encryption settings
-    - Versioning and Lifecycle rules
-    - Public access configuration
-    - Logging and metrics
-    - Replication rules
-    - CORS configuration
-    - Website hosting configuration
-    - Object lock and retention policies
-    - Inventory configurations
-    - Analytics configurations
-    """
+    """AWS S3 bucket enumeration including encryption, versioning, policies, and public access analysis."""
 
     NAME = "s3_enumeration"
-    DESCRIPTION = "Comprehensive AWS S3 bucket and configuration enumeration"
+    DESCRIPTION = "AWS S3 bucket and configuration enumeration"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"
     PLATFORM = ["aws"]
@@ -43,10 +27,10 @@ class Module(ModuleBase):
         "ACCESS_KEY": "",
         "SECRET_KEY": "",
         "SESSION_TOKEN": "",
-        "ENUMERATE_OBJECTS": False,  # Enumerate objects in buckets (can be slow)
-        "MAX_OBJECTS_PER_BUCKET": 100,  # Maximum objects to enumerate per bucket
-        "CHECK_PUBLIC_ACCESS": True,  # Check for public access configurations
-        "OUTPUT_FILE": "s3_enumeration_results.json",  # JSON output file path
+        "ENUMERATE_OBJECTS": False,
+        "MAX_OBJECTS_PER_BUCKET": 100,
+        "CHECK_PUBLIC_ACCESS": True,
+        "OUTPUT_FILE": "s3_enumeration_results.json",
     }
 
     REQUIRED_OPTIONS = ["AWS_REGION"]

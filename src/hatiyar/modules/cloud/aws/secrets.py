@@ -1,4 +1,4 @@
-"""AWS Secrets Manager & Systems Manager Parameter Store Enumeration Module"""
+"""AWS Secrets Manager & Parameter Store Enumeration Module"""
 
 from typing import Dict, Any, List
 import boto3
@@ -13,22 +13,10 @@ console = Console()
 
 
 class Module(ModuleBase):
-    """
-    AWS Secrets Manager & Parameter Store Enumeration Module
-
-    Performs complete enumeration of:
-    - AWS Secrets Manager secrets with metadata
-    - Systems Manager Parameter Store parameters
-    - Secret rotation configuration
-    - Access policies and permissions
-    - KMS encryption keys
-    - Secret versions and staged values
-    - Parameter hierarchies and tags
-    - Compliance and security findings
-    """
+    """AWS Secrets Manager and Parameter Store enumeration with rotation and encryption analysis."""
 
     NAME = "secrets_enumeration"
-    DESCRIPTION = "Comprehensive AWS Secrets Manager and Parameter Store enumeration"
+    DESCRIPTION = "AWS Secrets Manager and Parameter Store enumeration"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"
     PLATFORM = ["aws"]
@@ -39,10 +27,10 @@ class Module(ModuleBase):
         "ACCESS_KEY": "",
         "SECRET_KEY": "",
         "SESSION_TOKEN": "",
-        "ENUMERATE_SECRETS": True,  # Enumerate Secrets Manager secrets
-        "ENUMERATE_PARAMETERS": True,  # Enumerate Parameter Store parameters
-        "RETRIEVE_VALUES": False,  # Actually retrieve secret/parameter values (sensitive!)
-        "CHECK_ROTATION": True,  # Check rotation configuration
+        "ENUMERATE_SECRETS": True,
+        "ENUMERATE_PARAMETERS": True,
+        "RETRIEVE_VALUES": False,
+        "CHECK_ROTATION": True,
         "OUTPUT_FILE": "secrets_enumeration_results.json",
     }
 

@@ -1,4 +1,4 @@
-"""AWS EC2 Enumeration Module - Comprehensive EC2 Resource Discovery"""
+"""AWS EC2 Enumeration Module"""
 
 from typing import Dict, Any, List
 import boto3
@@ -14,29 +14,10 @@ console = Console()
 
 
 class Module(ModuleBase):
-    """
-    AWS EC2 Comprehensive Enumeration Module
-
-    Performs complete enumeration of AWS EC2 and VPC resources including:
-    - EC2 Instances with all associated resources (instance-centric view)
-    - Security Groups with detailed rules
-    - Elastic Block Store (EBS) Volumes and Snapshots
-    - Elastic IPs
-    - Network Interfaces (ENIs)
-    - VPCs and Subnets
-    - Amazon Machine Images (AMIs)
-    - SSH Key Pairs
-    - Network ACLs
-    - Route Tables
-    - Internet Gateways and NAT Gateways
-    - VPC Endpoints
-    - Load Balancers (ALB, NLB, Classic)
-    - Auto Scaling Groups
-    - Systems Manager (SSM) Agent Status
-    """
+    """AWS EC2 and VPC enumeration including instances, security groups, volumes, and networking resources."""
 
     NAME = "ec2_enumeration"
-    DESCRIPTION = "Comprehensive AWS EC2, VPC, and networking resource enumeration"
+    DESCRIPTION = "AWS EC2, VPC, and networking resource enumeration"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"
     PLATFORM = ["aws"]
@@ -47,8 +28,8 @@ class Module(ModuleBase):
         "ACCESS_KEY": "",
         "SECRET_KEY": "",
         "SESSION_TOKEN": "",
-        "ENUMERATE_INSTANCES": True,  # Main toggle for instance-centric enumeration
-        "OUTPUT_FILE": "ec2_enumeration_results.json",  # JSON output file path (auto-generated if not specified)
+        "ENUMERATE_INSTANCES": True,
+        "OUTPUT_FILE": "ec2_enumeration_results.json",
     }
 
     REQUIRED_OPTIONS = ["AWS_REGION"]

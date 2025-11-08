@@ -1,4 +1,4 @@
-"""AWS IAM Enumeration Module - Comprehensive Identity & Access Management Discovery"""
+"""AWS IAM Enumeration Module"""
 
 from typing import Dict, Any
 import boto3
@@ -14,33 +14,16 @@ console = Console()
 
 
 class Module(ModuleBase):
-    """
-    AWS IAM Comprehensive Enumeration Module
-
-    Performs complete enumeration of AWS IAM resources including:
-    - IAM Users with access keys, MFA status, and permissions
-    - IAM Groups with attached policies
-    - IAM Roles with trust policies and permissions
-    - IAM Policies (managed and inline)
-    - Password policies and account settings
-    - Access keys age and status
-    - MFA devices and status
-    - Service Control Policies (SCPs)
-    - Permission boundaries
-    - Last activity and credential reports
-    - Security findings and compliance issues
-    """
+    """AWS IAM enumeration including users, roles, policies, MFA status, and security analysis."""
 
     NAME = "iam_enumeration"
-    DESCRIPTION = (
-        "Comprehensive AWS IAM users, roles, policies, and security enumeration"
-    )
+    DESCRIPTION = "AWS IAM users, roles, policies, and security enumeration"
     MODULE_TYPE = ModuleType.ENUMERATION
     CATEGORY = "cloud"
     PLATFORM = ["aws"]
 
     OPTIONS = {
-        "AWS_REGION": "us-east-1",  # IAM is global but region needed for session
+        "AWS_REGION": "us-east-1",
         "AWS_PROFILE": "",
         "ACCESS_KEY": "",
         "SECRET_KEY": "",
@@ -51,7 +34,7 @@ class Module(ModuleBase):
         "ENUMERATE_POLICIES": True,
         "CHECK_PASSWORD_POLICY": True,
         "CHECK_MFA": True,
-        "GENERATE_CREDENTIAL_REPORT": False,  # Can take time to generate
+        "GENERATE_CREDENTIAL_REPORT": False,
         "OUTPUT_FILE": "iam_enumeration_results.json",
     }
 
