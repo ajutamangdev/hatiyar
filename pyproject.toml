@@ -74,7 +74,7 @@ commit_parser = "conventional"
 tag_format = "v{version}"
 
 # Version constraints
-major_on_zero = false
+major_on_zero = true
 allow_zero_version = true
 
 # Commit parser options
