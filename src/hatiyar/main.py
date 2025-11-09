@@ -114,30 +114,33 @@ if TYPER_AVAILABLE:
 
         start_shell()
 
-    @cli.command(name="serve")
-    def serve(
-        host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host"),
-        port: int = typer.Option(8000, "--port", "-p", help="Port"),
-        reload: bool = typer.Option(False, "--reload", "-r", help="Auto-reload"),
-    ) -> None:
-        """Launch web dashboard for cloud auditing
+    # @cli.command(name="serve")
+    # def serve(
+    #     host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host"),
+    #     port: int = typer.Option(8000, "--port", "-p", help="Port"),
+    #     reload: bool = typer.Option(False, "--reload", "-r", help="Auto-reload"),
+    # ) -> None:
+    #     """Launch web dashboard for cloud auditing
+    #
+    #     Examples:
+    #       hatiyar serve
+    #       hatiyar serve --port 8080
+    #       hatiyar serve --host 127.0.0.1
+    #     """
+    #     try:
+    #         import uvicorn  # type: ignore
+    #     except ImportError:
+    #         console.print("[red]✗ uvicorn not installed[/red]")
+    #         console.print("[dim]Install: [cyan]pip install uvicorn[/cyan][/dim]")
+    #         raise typer.Exit(code=1)
+    #
+    #     console.print(f"[green]✓ Server starting:[/green] http://{host}:{port}")
+    #     console.print(f"[cyan]  Dashboard:[/cyan] http://{host}:{port}/")
+    #
+    #     uvicorn.run("hatiyar.main:app", host=host, port=port, reload=reload)
 
-        Examples:
-          hatiyar serve
-          hatiyar serve --port 8080
-          hatiyar serve --host 127.0.0.1
-        """
-        try:
-            import uvicorn  # type: ignore
-        except ImportError:
-            console.print("[red]✗ uvicorn not installed[/red]")
-            console.print("[dim]Install: [cyan]pip install uvicorn[/cyan][/dim]")
-            raise typer.Exit(code=1)
-
-        console.print(f"[green]✓ Server starting:[/green] http://{host}:{port}")
-        console.print(f"[cyan]  Dashboard:[/cyan] http://{host}:{port}/")
-
-        uvicorn.run("hatiyar.main:app", host=host, port=port, reload=reload)
+    # TODO: Web dashboard coming soon!
+    # The serve command will be available in a future release
 
     @cli.command(name="info")
     def info() -> None:
