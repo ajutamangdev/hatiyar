@@ -56,7 +56,7 @@ jobs:
         if: steps.release.outputs.released == 'true'
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: uv publish
+        run: uv publish --token $UV_PUBLISH_TOKEN
 
       - name: Publish to GitHub Releases
         if: steps.release.outputs.released == 'true'
