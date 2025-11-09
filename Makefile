@@ -25,7 +25,7 @@ help: ## Display this help message
 
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-##@ Setup
+##@ Configuration
 setup: ## Setup virtual environment and install dependencies
 	uv venv $(VENV_DIR)
 	$(ACTIVATE_VENV) uv sync"
@@ -33,6 +33,8 @@ setup: ## Setup virtual environment and install dependencies
 install: ## Install dependencies using uv
 	$(ACTIVATE_VENV) uv sync"
 
+build: ## Build the project using uv
+	$(ACTIVATE_VENV) uv build --no-sources"
 
 ##@ Development
 
