@@ -72,13 +72,6 @@ jobs:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: uv publish
 
-      - name: Publish to GitHub Releases
-        if: steps.release.outputs.released == 'true'
-        uses: python-semantic-release/upload-to-gh-release@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.release.outputs.tag }}
-
       - name: Move 'latest' Tag
         if: steps.release.outputs.released == 'true'
         uses: EndBug/latest-tag@latest
