@@ -86,6 +86,8 @@ jobs:
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/main' }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          skipIfReleaseExists: false
 
       - name: Move 'latest' Tag
         if: steps.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
