@@ -49,9 +49,6 @@ include = ["hatiyar*"]
 "*" = ["*.yaml"]
 
 [tool.semantic_release]
-# Branch to perform releases from
-branch = "main"
-
 # Version variables to update
 version_toml = ["pyproject.toml:project.version"]
 version_variables = [
@@ -77,6 +74,21 @@ tag_format = "v{version}"
 major_on_zero = true
 allow_zero_version = true
 
+# Branch configuration
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease = false
+
+[tool.semantic_release.branches.develop]
+match = "develop"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.semantic_release.branches.beta]
+match = "beta"
+prerelease = true
+prerelease_token = "beta"
+
 # Commit parser options
 [tool.semantic_release.commit_parser_options]
 allowed_tags = [
@@ -87,5 +99,9 @@ minor_tags = ["feat"]
 patch_tags = ["fix", "perf", "refactor"]
 
 # Changelog configuration
+[tool.semantic_release.changelog]
+template_dir = "templates"
+exclude_commit_patterns = []
+
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"

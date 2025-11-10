@@ -9,6 +9,8 @@ on:
   push:
     branches:
       - main
+      - develop  # Pre-releases from develop branch
+      - beta     # Beta pre-releases
 
 jobs:
   release:
@@ -48,18 +50,19 @@ jobs:
           # Store the current version before running semantic-release
           BEFORE_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
           
-          # Run semantic-release version and capture output
-          uv run semantic-release version --print
+          # Run semantic-release version (bumps version, updates CHANGELOG, creates commit & tag, and pushes)
           uv run semantic-release version
-          uv run semantic-release publish
           
           # Check if version changed
           AFTER_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
           if [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
             echo "released=true" >> $GITHUB_OUTPUT
             echo "tag=v$AFTER_VERSION" >> $GITHUB_OUTPUT
+            echo "version=$AFTER_VERSION" >> $GITHUB_OUTPUT
+            echo "✅ Released version $AFTER_VERSION"
           else
             echo "released=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No release - version unchanged"
           fi
 
       - name: Build with uv
@@ -67,14 +70,26 @@ jobs:
         run: uv build --no-sources
 
       - name: Publish to PyPI
-        if: steps.release.outputs.released == 'true'
+        if: steps.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: uv publish
 
-      - name: Move 'latest' Tag
+      - name: Create GitHub Release
         if: steps.release.outputs.released == 'true'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.release.outputs.tag }}
+          name: Release ${{ steps.release.outputs.version }}
+          body: |
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.release.outputs.tag }}/CHANGELOG.md) for details.
+          draft: false
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move 'latest' Tag
+        if: steps.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
         uses: EndBug/latest-tag@latest
         with:
           ref: latest
-          description: The latest release of hatiyar.
+          description: The latest stable release of hatiyar.
