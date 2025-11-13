@@ -41,8 +41,8 @@ build: ## Build the project using uv
 shell: ## Launch the interactive hatiyar shell
 	$(ACTIVATE_VENV) $(PYTHON) $(SRC_DIR)/main.py shell"
 
-serve: ## Audit using the web interface
-	$(ACTIVATE_VENV) $(PYTHON) $(SRC_DIR)/main.py serve"
+# serve: ## Audit using the web interface
+# 	$(ACTIVATE_VENV) $(PYTHON) $(SRC_DIR)/main.py serve"
 
 
 ##@ Code Quality

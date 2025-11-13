@@ -8,6 +8,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from hatiyar.core.module_base import ModuleBase, ModuleType
+from hatiyar.utils.output import save_json_results
 
 console = Console()
 
@@ -682,7 +683,6 @@ class Module(ModuleBase):
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Add metadata
-            import json
 
             output_data = {
                 "metadata": {
@@ -703,14 +703,12 @@ class Module(ModuleBase):
                 "data": self.data,
             }
 
-            with open(output_path, "w") as f:
-                json.dump(output_data, f, indent=2, default=str)
-
+            save_json_results(output_data, output_path)
             console.print(f"\n[green]✓ Results saved to: {output_file}[/green]")
             return str(output_path)
 
-        except Exception as e:
-            console.print(f"[red]✗ Error saving results: {str(e)}[/red]")
+        except (IOError, ValueError) as e:
+            console.print(f"[red]✗ {e}[/red]")
             return ""
 
     def run(self) -> Dict[str, Any]:

@@ -262,6 +262,7 @@ class ModuleManager:
             filtered = []
             for module in modules:
                 module_category = module.get("category", "").lower()
+                module_path = module.get("path", "")
 
                 if canonical_type == "auxiliary":
                     if module_category in ["misc", "auxiliary"]:
@@ -270,7 +271,19 @@ class ModuleManager:
                     if module.get("is_namespace", False):
                         filtered.append(module)
                 elif module_category == category.lower():
-                    filtered.append(module)
+                    # Only show top-level items for this category
+                    # Filter out nested modules (e.g., show platforms.k8s but not platforms.k8s.enum)
+                    path_parts = module_path.split(".")
+
+                    # For top-level category listing, only show:
+                    # 1. Namespaces at category.xxx level (e.g., platforms.k8s)
+                    # 2. Direct modules at category.xxx level (e.g., platforms.docker_scan)
+                    # But NOT nested modules like platforms.k8s.enum (3+ parts)
+                    if len(path_parts) <= 2:
+                        filtered.append(module)
+                    elif module.get("is_namespace", False):
+                        # Always show namespaces (e.g., cloud.aws.ec2 if it's a namespace)
+                        filtered.append(module)
 
             return sorted(filtered, key=lambda x: x.get("name", ""))
 

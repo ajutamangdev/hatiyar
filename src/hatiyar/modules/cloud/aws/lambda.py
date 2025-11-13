@@ -9,6 +9,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from hatiyar.core.module_base import ModuleBase, ModuleType
+from hatiyar.utils.output import save_json_results
 
 console = Console()
 
@@ -500,14 +501,12 @@ class Module(ModuleBase):
                 "security_findings": self.data["security_findings"],
             }
 
-            with output_path.open("w") as f:
-                json.dump(output_data, f, indent=2, default=str)
-
+            save_json_results(output_data, output_path)
             console.print(f"\n[green]✓[/green] Results saved to: {output_file}")
             return output_file
 
-        except Exception as e:
-            console.print(f"[red]✗[/red] Error saving results: {str(e)}")
+        except (IOError, ValueError) as e:
+            console.print(f"[red]✗[/red] {e}")
             return ""
 
     def run(self) -> Dict[str, Any]:
@@ -562,5 +561,4 @@ class Module(ModuleBase):
         return {
             "success": True,
             "output_file": output_file,
-            "data": self.data,
         }

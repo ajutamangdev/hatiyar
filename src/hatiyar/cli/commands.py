@@ -1,16 +1,19 @@
-"""Command handlers for CLI"""
+"""Command handlers for CLI with session-based state management."""
 
+import re
 from typing import Optional, List, Dict, Any
 from rich.table import Table
 from rich.panel import Panel
-from hatiyar.core.modules import ModuleManager
+from hatiyar.cli.session import CLISession
+from hatiyar.core.constants import (
+    Context,
+    ValidationLimits,
+    Messages,
+    SensitiveKeywords,
+)
 
-manager = ModuleManager()
-active_module: Optional[Any] = None
-active_module_name: Optional[str] = None
-module_options: Dict[str, Any] = {}
-global_options: Dict[str, Any] = {}
-current_context: str = ""
+# Validation regex for option names
+VALID_OPTION_NAME = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 
 CATEGORIES_INFO = [
     ("cve", "CVE exploits"),
@@ -20,14 +23,14 @@ CATEGORIES_INFO = [
     ("misc", "Miscellaneous"),
 ]
 
-SENSITIVE_KEYWORDS = ["PASSWORD", "KEY", "SECRET", "TOKEN"]
+SENSITIVE_KEYWORDS = SensitiveKeywords.KEYWORDS
 
 
-def get_current_context() -> str:
-    return current_context
+def get_current_context(session: CLISession) -> str:
+    return session.current_context
 
 
-def handle_command(command: str, console) -> None:
+def handle_command(command: str, console, session: CLISession) -> None:
     tokens = command.split()
     if not tokens:
         return
@@ -39,20 +42,20 @@ def handle_command(command: str, console) -> None:
         "help": lambda: show_help(console),
         "clear": lambda: clear_screen(console),
         "cls": lambda: clear_screen(console),
-        "list": lambda: handle_list(args, console),
-        "ls": lambda: handle_list(args, console),
-        "cd": lambda: handle_cd(args, console),
-        "reload": lambda: handle_reload(console),
-        "search": lambda: handle_search(args, console),
-        "info": lambda: handle_info(args, console),
-        "use": lambda: handle_use(args, console),
-        "select": lambda: handle_use(args, console),
-        "set": lambda: handle_set(args, console),
-        "show": lambda: handle_show(args, console),
-        "run": lambda: handle_run(console),
-        "katta": lambda: handle_run(console),
-        "exploit": lambda: handle_run(console),
-        "back": lambda: handle_back(console),
+        "list": lambda: handle_list(args, console, session),
+        "ls": lambda: handle_list(args, console, session),
+        "cd": lambda: handle_cd(args, console, session),
+        "reload": lambda: handle_reload(console, session),
+        "search": lambda: handle_search(args, console, session),
+        "info": lambda: handle_info(args, console, session),
+        "use": lambda: handle_use(args, console, session),
+        "select": lambda: handle_use(args, console, session),
+        "set": lambda: handle_set(args, console, session),
+        "show": lambda: handle_show(args, console, session),
+        "run": lambda: handle_run(console, session),
+        "katta": lambda: handle_run(console, session),
+        "exploit": lambda: handle_run(console, session),
+        "back": lambda: handle_back(console, session),
     }
 
     handler = handlers.get(cmd)
@@ -92,90 +95,60 @@ def clear_screen(console) -> None:
     console.print("[dim]Type [cyan]help[/cyan] or press TAB[/dim]\n")
 
 
-def handle_reload(console) -> None:
-    global manager
-    manager = ModuleManager()
-    stats = manager.get_stats()
-    total = stats.get("total_modules", 0)
-    console.print(f"[green]✓[/green] Reloaded {total} modules from YAML")
+def handle_reload(console, session: CLISession) -> None:
+    total = session.reload_modules()
+    console.print(f"[green]✓[/green] Reloaded {total} modules")
     console.print("[dim]Use 'ls' to explore[/dim]")
 
 
-def handle_list(args: List[str], console) -> None:
-    global current_context
-
+def handle_list(args: List[str], console, session: CLISession) -> None:
     if not args:
-        if current_context:
-            if current_context in manager.namespaces:
-                show_namespace_modules(current_context, console)
+        if session.current_context:
+            if session.current_context in session.manager.namespaces:
+                show_namespace_modules(session.current_context, console, session)
             else:
-                show_category_modules(current_context, console)
+                show_category_modules(session.current_context, console, session)
         else:
             show_categories(console)
     else:
         category_or_namespace = args[0].lower()
-        current_context = category_or_namespace
-
-        if category_or_namespace in manager.namespaces:
-            show_namespace_modules(category_or_namespace, console)
-        else:
-            show_category_modules(category_or_namespace, console)
-
-
-def handle_cd(args: List[str], console) -> None:
-    global current_context
-
-    if not args:
-        current_context = ""
-        console.print("[cyan]→ root[/cyan]")
-        show_categories(console)
-        return
-
-    target = args[0].lower()
-
-    if target == "..":
-        if not current_context:
-            console.print("[yellow]Already at root[/yellow]")
-            return
-
-        if "." in current_context:
-            current_context = current_context.rsplit(".", 1)[0]
-            console.print(f"[cyan]→ {current_context}[/cyan]")
-            if current_context in manager.namespaces:
-                show_namespace_modules(current_context, console)
+        if session.navigate_to(category_or_namespace):
+            if category_or_namespace in session.manager.namespaces:
+                show_namespace_modules(category_or_namespace, console, session)
             else:
-                show_category_modules(current_context, console)
+                show_category_modules(category_or_namespace, console, session)
         else:
-            current_context = ""
+            console.print(f"[red]Invalid category or namespace:[/red] {category_or_namespace}")
+            console.print("[dim]Use 'ls' to see available options[/dim]")
+
+
+def handle_cd(args: List[str], console, session: CLISession) -> None:
+    if not args:
+        if session.navigate_to(""):
             console.print("[cyan]→ root[/cyan]")
             show_categories(console)
         return
 
-    if current_context and "." not in target:
-        full_path = f"{current_context}.{target}"
-        if full_path in manager.namespaces:
-            current_context = full_path
-            console.print(f"[cyan]→ {current_context}[/cyan]")
-            show_namespace_modules(current_context, console)
-            return
-
-    if target in manager.namespaces:
-        current_context = target
-        console.print(f"[cyan]→ {current_context}[/cyan]")
-        show_namespace_modules(current_context, console)
-    elif target in dict(CATEGORIES_INFO):
-        current_context = target
-        console.print(f"[cyan]→ {current_context}[/cyan]")
-        show_category_modules(target, console)
+    target = args[0].lower()
+    
+    if session.navigate_to(target):
+        console.print(f"[cyan]→ {session.current_context or 'root'}[/cyan]")
+        
+        if not session.current_context:
+            show_categories(console)
+        elif session.current_context in session.manager.namespaces:
+            show_namespace_modules(session.current_context, console, session)
+        else:
+            show_category_modules(session.current_context, console, session)
     else:
-        console.print(f"[red]Path not found:[/red] {target}")
-        console.print("[dim]Use 'ls' to see paths[/dim]")
+        if target == ".." and not session.current_context:
+            console.print("[yellow]Already at root[/yellow]")
+        else:
+            console.print(f"[red]Path not found:[/red] {target}")
+            console.print("[dim]Use 'ls' to see paths[/dim]")
 
 
 def show_categories(console) -> None:
-    global current_context
-    current_context = ""
-
     table = Table(show_header=True, header_style="bold cyan")
     table.add_column("Category", style="cyan bold", width=15)
     table.add_column("Description", style="dim")
@@ -187,8 +160,8 @@ def show_categories(console) -> None:
     console.print("[dim]→ [cyan]ls <category>[/cyan] to explore[/dim]")
 
 
-def show_category_modules(category: str, console) -> None:
-    modules = manager.list_modules(category)
+def show_category_modules(category: str, console, session: CLISession) -> None:
+    modules = session.manager.list_modules(category)
 
     if not modules:
         console.print(f"[red]No modules in:[/red] {category}")
@@ -201,8 +174,8 @@ def show_category_modules(category: str, console) -> None:
     console.print(f"\n[dim]Try: [cyan]use {example}[/cyan][/dim]")
 
 
-def show_namespace_modules(namespace: str, console) -> None:
-    modules = manager.get_namespace_modules(namespace)
+def show_namespace_modules(namespace: str, console, session: CLISession) -> None:
+    modules = session.manager.get_namespace_modules(namespace)
 
     if not modules:
         console.print(f"[red]No modules in:[/red] {namespace}")
@@ -247,14 +220,13 @@ def create_module_table(category: str, modules: List[Dict]) -> Table:
     return table
 
 
-def handle_search(args: List[str], console) -> None:
-    """Handle search command"""
+def handle_search(args: List[str], console, session: CLISession) -> None:
     if not args:
         console.print("[red]Usage: search <query>[/red]")
         return
 
     query = " ".join(args)
-    results = manager.search_modules(query)
+    results = session.search_modules(query)
 
     if not results:
         console.print(f"[yellow]No modules found matching:[/yellow] {query}")
@@ -266,7 +238,6 @@ def handle_search(args: List[str], console) -> None:
 
 
 def create_search_results_table(query: str, results: List[Dict]) -> Table:
-    """Create a formatted table for search results"""
     table = Table(title=f"Search Results for '{query}' ({len(results)} found)")
     table.add_column("#", style="dim", justify="right", width=4)
     table.add_column("Type", style="yellow", width=12)
@@ -283,28 +254,24 @@ def create_search_results_table(query: str, results: List[Dict]) -> Table:
     return table
 
 
-def handle_info(args: List[str], console) -> None:
-    """Handle info command"""
-    global active_module, active_module_name
-
-    target = args[0] if args else active_module_name
+def handle_info(args: List[str], console, session: CLISession) -> None:
+    target = args[0] if args else session.active_module_name
     if not target:
         console.print("[red]Usage: info <module> (or load a module first)[/red]")
         return
 
     # Try cached metadata first
-    metadata = manager.get_module_metadata(target)
+    metadata = session.get_module_info(target)
 
     if metadata:
-        display_module_info_from_metadata(metadata, console)
+        display_module_info_from_metadata(metadata, console, session)
     else:
-        display_module_info_from_load(target, console)
+        display_module_info_from_load(target, console, session)
 
 
-def display_module_info_from_metadata(metadata: Dict, console) -> None:
-    """Display module info from cached metadata"""
+def display_module_info_from_metadata(metadata: Dict, console, session: CLISession) -> None:
     # Load module to get options
-    mod = manager.load_module(metadata["path"])
+    mod = session.manager.load_module(metadata["path"])
     opts = getattr(mod, "options", {}) if mod else {}
 
     info_text = build_info_text(metadata)
@@ -316,9 +283,8 @@ def display_module_info_from_metadata(metadata: Dict, console) -> None:
         console.print("[dim]No configurable options[/dim]")
 
 
-def display_module_info_from_load(target: str, console) -> None:
-    """Display module info by loading the module"""
-    mod = manager.load_module(target)
+def display_module_info_from_load(target: str, console, session: CLISession) -> None:
+    mod = session.manager.load_module(target)
     if not mod:
         console.print(f"[red]Module not found:[/red] {target}")
         return
@@ -336,7 +302,6 @@ def display_module_info_from_load(target: str, console) -> None:
 
 
 def extract_module_metadata(module: Any, path: str) -> Dict:
-    """Extract metadata from a loaded module instance"""
     return {
         "name": getattr(module, "NAME", "Unknown"),
         "description": getattr(module, "DESCRIPTION", "No description"),
@@ -352,7 +317,6 @@ def extract_module_metadata(module: Any, path: str) -> Dict:
 
 
 def build_info_text(metadata: Dict) -> str:
-    """Build formatted info text from metadata"""
     info_text = (
         f"[bold cyan]{metadata.get('name', 'Unknown')}[/bold cyan]\n\n"
         f"{metadata.get('description', 'No description')}\n\n"
@@ -371,7 +335,6 @@ def build_info_text(metadata: Dict) -> str:
 
 
 def display_module_options(module: Any, opts: Dict, console) -> None:
-    """Display module options in a table"""
     table = Table(title="Module Options")
     table.add_column("Option", style="yellow", no_wrap=True)
     table.add_column("Current Value", style="green")
@@ -388,10 +351,7 @@ def display_module_options(module: Any, opts: Dict, console) -> None:
     console.print(table)
 
 
-def handle_use(args: List[str], console) -> None:
-    """Handle use command"""
-    global active_module, active_module_name, module_options, current_context
-
+def handle_use(args: List[str], console, session: CLISession) -> None:
     if not args:
         console.print("[red]Usage: use/select <module>[/red]")
         console.print("[dim]Example: select ec2 (when in cloud.aws context)[/dim]")
@@ -403,52 +363,16 @@ def handle_use(args: List[str], console) -> None:
     module_name = args[0]
 
     # Check if it's a namespace (e.g., cloud.aws)
-    if module_name in manager.namespaces:
+    if module_name in session.manager.namespaces:
         # Update context and show submodules instead of loading
-        current_context = module_name
-        show_namespace_modules(module_name, console)
+        session.navigate_to(module_name)
+        show_namespace_modules(module_name, console, session)
         return
 
-    # If we're in a context and user provides short name, expand it
-    if current_context and "." not in module_name:
-        # First, try direct path in current context (e.g., cloud.ec2)
-        full_path = f"{current_context}.{module_name}"
-        test_module = manager.load_module(full_path, silent=True)
-
-        if test_module:
-            module_name = full_path
-            active_module = test_module
-        else:
-            # If not found, search in all sub-namespaces
-            # For example, if in "cloud" context, search cloud.aws.ec2, cloud.azure.ec2, etc.
-            found = False
-            for namespace in manager.namespaces:
-                if namespace.startswith(current_context + "."):
-                    candidate = f"{namespace}.{module_name}"
-                    test_module = manager.load_module(candidate, silent=True)
-                    if test_module:
-                        module_name = candidate
-                        active_module = test_module
-                        found = True
-                        break
-
-            # If still not found, try loading as is (with error messages this time)
-            if not found:
-                active_module = manager.load_module(module_name)
-    else:
-        active_module = manager.load_module(module_name)
-
-    if active_module:
-        active_module_name = module_name
-        module_options = getattr(active_module, "options", {}).copy()
-
-        # Apply global options to module options
-        for key, value in global_options.items():
-            if key in module_options:
-                module_options[key] = value
-
-        console.print(f"[green]Module loaded:[/green] [bold]{module_name}[/bold]")
-        display_quick_module_info(active_module, console)
+    # Try to load the module
+    if session.load_module(module_name):
+        console.print(f"[green]Module loaded:[/green] [bold]{session.active_module_name}[/bold]")
+        display_quick_module_info(session.active_module, console)
     else:
         console.print(f"[red]Module not found:[/red] {module_name}")
         console.print(
@@ -457,7 +381,6 @@ def handle_use(args: List[str], console) -> None:
 
 
 def display_quick_module_info(module: Any, console) -> None:
-    """Show quick module info"""
     name = getattr(module, "NAME", "Unknown")
     desc = getattr(module, "DESCRIPTION", "")
 
@@ -484,66 +407,59 @@ def display_quick_module_info(module: Any, console) -> None:
     console.print(cmd_table)
 
 
-def handle_set(args: List[str], console) -> None:
-    """Handle set command - supports global options (AWS_PROFILE, AWS_REGION, etc.)"""
-    global module_options, global_options
-
+def handle_set(args: List[str], console, session: CLISession) -> None:
     if len(args) < 2:
-        console.print("[red]Usage: set <option> <value>[/red]")
-        console.print("[dim]Example: set AWS_PROFILE myprofile[/dim]")
-        console.print(
-            "[dim]Global options: AWS_PROFILE, AWS_REGION, ACCESS_KEY, SECRET_KEY[/dim]"
-        )
+        
+        # Context-aware help
+        if session.current_context and Context.K8S in session.current_context:
+            console.print("\n[bold]K8s Authentication Methods[/bold]")
+            console.print()
+            console.print("[yellow]Method 1:[/yellow] [dim]Kubeconfig (recommended)[/dim]")
+            console.print("  [cyan]set KUBECONFIG ~/.kube/config[/cyan]")
+            console.print("  [cyan]set CONTEXT prod-cluster[/cyan]      [dim]# optional[/dim]")
+            console.print()
+            console.print("[yellow]Method 2:[/yellow] [dim]Direct API access[/dim]")
+            console.print("  [cyan]set API_SERVER https://k8s-api.example.com:6443[/cyan]")
+            console.print("  [cyan]set TOKEN eyJhbGciOiJSUzI1...[/cyan]")
+            console.print()
+            console.print("[dim]Quick setup:[/dim]")
+            console.print("  kubectl config current-context  # check current")
+        
+        if session.current_context and Context.AWS in session.current_context:
+            console.print("\n[bold]AWS Authentication Methods[/bold]")
+            console.print()
+            console.print("[yellow]Method 1:[/yellow] [dim]AWS Profile (recommended)[/dim]")
+            console.print("  [cyan]set AWS_PROFILE myprofile[/cyan]")
+            console.print("  [cyan]set AWS_REGION us-west-2[/cyan]       [dim]# optional override[/dim]")
+            console.print()
+            console.print("[yellow]Method 2:[/yellow] [dim]Access Keys[/dim]")
+            console.print("  [cyan]set ACCESS_KEY AKIA...[/cyan]")
+            console.print("  [cyan]set SECRET_KEY wJalrXUt...[/cyan]")
+            console.print("  [cyan]set AWS_REGION us-east-1[/cyan]")
+            console.print()
+            console.print("[dim]Quick setup:[/dim]")
+            console.print("  aws configure --profile dev     # create profile")
+            console.print("  aws sts get-caller-identity    # test current auth")
+        
         return
 
     key = args[0].upper()
     value = " ".join(args[1:])
 
-    # Global options that persist across modules
-    GLOBAL_OPTIONS = [
-        "AWS_PROFILE",
-        "AWS_REGION",
-        "ACCESS_KEY",
-        "SECRET_KEY",
-        "SESSION_TOKEN",
-    ]
-
-    # If it's a global option, store it globally
-    if key in GLOBAL_OPTIONS:
-        global_options[key] = value
-        # Also update current module if loaded
-        if active_module and key in module_options:
-            if hasattr(active_module, "set_option"):
-                active_module.set_option(key, value)
-            module_options[key] = value
-        console.print(
-            f"[green]{key} => [bold]{value}[/bold][/green] [dim](global)[/dim]"
-        )
-        return
-
-    # For non-global options, require a module to be loaded
-    if not active_module:
-        console.print(
-            "[red]No module loaded. Use [cyan]use <module>[/cyan] first.[/red]"
-        )
-        console.print("[dim]Or set global options: AWS_PROFILE, AWS_REGION[/dim]")
-        return
-
-    if hasattr(active_module, "set_option"):
-        if active_module.set_option(key, value):
-            module_options[key] = value
-            console.print(f"[green]{key} => [bold]{value}[/bold][/green]")
-        else:
-            console.print(f"[red]Failed to set option:[/red] {key}")
-            console.print(
-                "[dim]Use [cyan]show options[/cyan] to see available options[/dim]"
-            )
+    if session.set_option(key, value):
+        is_global = (key in session.AWS_GLOBAL_OPTIONS or key in session.K8S_GLOBAL_OPTIONS)
+        suffix = " [dim](global)[/dim]" if is_global else ""
+        console.print(f"[green]✓[/green] {key} = {value}{suffix}")
     else:
-        console.print("[red]Module does not support set_option[/red]")
+        if not session.active_module:
+            console.print("[red]No module loaded[/red]")
+            console.print("[dim]Load a module first or set global options[/dim]")
+        else:
+            console.print(f"[red]Unknown option:[/red] {key}")
+            console.print("[dim]Use [cyan]show options[/cyan] to see available options[/dim]")
 
 
-def handle_show(args: List[str], console) -> None:
-    """Handle show command"""
+def handle_show(args: List[str], console, session: CLISession) -> None:
     if not args:
         console.print("[red]Usage: show <what>[/red]")
         console.print(
@@ -552,9 +468,9 @@ def handle_show(args: List[str], console) -> None:
         return
 
     if args[0] == "options":
-        show_module_options(console)
+        show_module_options(console, session)
     elif args[0] == "global":
-        show_global_options(console)
+        show_global_options(console, session)
     else:
         console.print(f"[red]Unknown show target:[/red] {args[0]}")
         console.print(
@@ -562,87 +478,95 @@ def handle_show(args: List[str], console) -> None:
         )
 
 
-def show_global_options(console) -> None:
-    """Display global options"""
-    if not global_options:
+def show_global_options(console, session: CLISession) -> None:
+    if not session.global_options:
         console.print("[yellow]No global options set[/yellow]")
-        console.print(
-            "[dim]Global options: AWS_PROFILE, AWS_REGION, ACCESS_KEY, SECRET_KEY[/dim]"
-        )
-        console.print(
-            "[dim]Use: [cyan]set AWS_PROFILE myprofile[/cyan] to set global options[/dim]"
-        )
+        
+        # Show authentication method guides
+        console.print("\n[bold cyan]AWS Authentication Methods:[/bold cyan]")
+        console.print("[dim]Method 1 (Profile-based):[/dim]")
+        console.print("  [cyan]set AWS_PROFILE myprofile[/cyan]")
+        console.print("  [cyan]set AWS_REGION us-east-1[/cyan]")
+        console.print("\n[dim]Method 2 (Credentials-based):[/dim]")
+        console.print("  [cyan]set ACCESS_KEY AKIA...[/cyan]")
+        console.print("  [cyan]set SECRET_KEY wJalr...[/cyan]")
+        console.print("  [cyan]set AWS_REGION us-east-1[/cyan]")
+        console.print("  [cyan]set SESSION_TOKEN[/cyan] [dim](optional)[/dim]")
+        
+        console.print("\n[bold cyan]Kubernetes Authentication Methods:[/bold cyan]")
+        console.print("[dim]Method 1 (Kubeconfig-based):[/dim]")
+        console.print("  [cyan]set KUBECONFIG ~/.kube/config[/cyan]")
+        console.print("  [cyan]set CONTEXT minikube[/cyan]")
+        console.print("\n[dim]Method 2 (Token-based):[/dim]")
+        console.print("  [cyan]set API_SERVER https://k8s.example.com[/cyan]")
+        console.print("  [cyan]set TOKEN eyJhbGc...[/cyan]")
+        console.print("  [cyan]set VERIFY_SSL true[/cyan] [dim](optional)[/dim]")
+        console.print("\n[dim]Method 3 (Certificate-based):[/dim]")
+        console.print("  [cyan]set API_SERVER https://k8s.example.com[/cyan]")
+        console.print("  [cyan]set CERT_FILE /path/to/client.crt[/cyan]")
+        console.print("  [cyan]set KEY_FILE /path/to/client.key[/cyan]")
+        console.print("  [cyan]set CA_CERT /path/to/ca.crt[/cyan] [dim](optional)[/dim]")
+        
         return
 
     table = Table(title="Global Options")
     table.add_column("Option", style="yellow", no_wrap=True)
     table.add_column("Value", style="green")
 
-    for k, v in global_options.items():
+    for k, v in session.global_options.items():
         display_value = mask_sensitive_value(k, v)
         table.add_row(k, display_value)
 
     console.print(table)
     console.print(
-        "\n[dim]These options are automatically applied to all AWS modules[/dim]"
+        "\n[dim]These options are automatically applied to all modules[/dim]"
     )
 
 
-def show_module_options(console) -> None:
-    """Display current module options"""
-    if not active_module:
+def show_module_options(console, session: CLISession) -> None:
+    if not session.active_module:
         console.print("[red]No module loaded.[/red]")
         return
 
-    table = Table(title=f"Options for {active_module_name}")
+    table = Table(title=f"Options for {session.active_module_name}")
     table.add_column("Option", style="yellow", no_wrap=True)
     table.add_column("Value", style="green")
     table.add_column("Required", style="red", justify="center")
     table.add_column("Type", style="cyan", justify="center")
     table.add_column("Source", style="dim", justify="center")
 
-    required_opts = getattr(active_module, "REQUIRED_OPTIONS", [])
+    required_opts = getattr(session.active_module, "REQUIRED_OPTIONS", [])
 
-    for k, v in module_options.items():
+    for k, v in session.module_options.items():
         is_required = "Yes" if k in required_opts else "No"
         display_value = mask_sensitive_value(k, v)
         val_type = type(v).__name__
         # Check if this option came from global settings
-        source = "global" if k in global_options else "module"
+        source = "global" if k in session.global_options else "module"
 
         table.add_row(k, display_value, is_required, val_type, source)
 
     console.print(table)
     console.print("\n[dim]Use [cyan]set <option> <value>[/cyan] to configure[/dim]")
-    if any(k in global_options for k in module_options.keys()):
+    if any(k in session.global_options for k in session.module_options.keys()):
         console.print(
             "[dim]Options marked 'global' are inherited from global settings[/dim]"
         )
 
 
-def handle_run(console) -> None:
-    """Execute module"""
-    if not active_module:
+def handle_run(console, session: CLISession) -> None:
+    if not session.active_module:
         console.print("[red]✗ No module loaded[/red]")
         console.print("[dim]Use: [cyan]use <module>[/cyan][/dim]")
         return
 
-    console.print(f"[bold cyan]═══ Executing: {active_module_name} ═══[/bold cyan]\n")
-
-    if not hasattr(active_module, "run"):
-        console.print("[red]✗ Module missing run method[/red]")
-        return
+    console.print(f"[bold cyan]═══ Executing: {session.active_module_name} ═══[/bold cyan]\n")
 
     try:
-        if hasattr(active_module, "options"):
-            for key, value in module_options.items():
-                if hasattr(active_module, "set_option"):
-                    active_module.set_option(key, value)
-                else:
-                    active_module.options[key] = value
-
-        result = active_module.run()
+        result = session.execute_module()
         display_run_result(result, console)
+    except RuntimeError as e:
+        console.print(f"[red]✗ {e}[/red]")
     except Exception as e:
         console.print("\n[bold red]✗ Execution failed:[/bold red]")
         console.print(f"[red]{e}[/red]")
@@ -653,7 +577,6 @@ def handle_run(console) -> None:
 
 
 def display_run_result(result: Any, console) -> None:
-    """Display execution result"""
     if isinstance(result, dict):
         if result.get("success"):
             console.print("\n[bold green]✓ Success[/bold green]")
@@ -668,36 +591,37 @@ def display_run_result(result: Any, console) -> None:
         console.print("\n[dim]Execution complete[/dim]")
 
 
-def handle_back(console) -> None:
-    """Navigate up or unload module"""
-    global active_module, active_module_name, module_options, current_context
-
-    if active_module:
-        active_module = None
-        active_module_name = None
-        module_options = {}
+def handle_back(console, session: CLISession) -> None:
+    if session.active_module:
+        # Clean up and unload module
+        if hasattr(session.active_module, 'cleanup'):
+            try:
+                session.active_module.cleanup()
+            except Exception as e:
+                console.print(f"[yellow]Warning: Cleanup error: {e}[/yellow]")
+        
+        session.active_module = None
+        session.active_module_name = None
+        session.module_options.clear()
         console.print("[yellow]← Module unloaded[/yellow]")
-    elif current_context:
-        if "." in current_context:
-            current_context = current_context.rsplit(".", 1)[0]
-            console.print(f"[yellow]← {current_context}[/yellow]")
+    elif session.current_context:
+        # Navigate up in context
+        if session.navigate_to(".."):
+            console.print(f"[yellow]← {session.current_context or 'root'}[/yellow]")
         else:
-            current_context = ""
-            console.print("[yellow]← root[/yellow]")
+            console.print("[dim]Already at root[/dim]")
     else:
         console.print("[dim]Already at root[/dim]")
 
 
 # Utility functions
 def truncate_string(text: str, max_length: int) -> str:
-    """Truncate string with ellipsis if too long"""
     if len(text) > max_length:
         return text[:max_length] + "..."
     return text
 
 
 def mask_sensitive_value(key: str, value: Any) -> str:
-    """Mask sensitive values in output"""
     if any(s in key.upper() for s in SENSITIVE_KEYWORDS):
         return "***" if value else "[dim]<not set>[/dim]"
     return str(value) if value else "[dim]<not set>[/dim]"

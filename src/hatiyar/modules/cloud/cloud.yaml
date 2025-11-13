@@ -2,7 +2,7 @@
 
 modules:
   - id: aws_platform
-    name: "AWS Platform"
+    name: "Amazon Web Services"
     module_path: "cloud.aws"
     category: "cloud"
     description: "Amazon Web Services security testing modules (EC2, S3, IAM, and more)"

@@ -32,24 +32,44 @@ class ModuleBase(ABC):
     OPTIONS: Dict[str, Any] = {}
     REQUIRED_OPTIONS: List[str] = []
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.options = self.OPTIONS.copy()
         self.results: Dict[str, Any] = {}
 
     def set_option(self, key: str, value: Any) -> bool:
-        """Set module option with type conversion"""
-        key_upper = key.upper()
+        """Set module option with type conversion (case-insensitive)
 
-        if key_upper not in self.options:
+        Returns:
+            bool: True if option was set successfully, False otherwise
+        """
+        key_upper = key.upper()
+        key_lower = key.lower()
+
+        # Try uppercase first (for global options like KUBECONFIG, AWS_PROFILE)
+        if key_upper in self.options:
+            target_key = key_upper
+        # Then try lowercase (for module-specific options like namespace)
+        elif key_lower in self.options:
+            target_key = key_lower
+        # Try original case as fallback
+        elif key in self.options:
+            target_key = key
+        else:
             return False
 
         try:
-            converted_value = self._convert_option_value(key_upper, value)
-            self.options[key_upper] = converted_value
+            converted_value = self._convert_option_value(target_key, value)
+            self.options[target_key] = converted_value
+            # Store the actual key that was used for reference
+            self._last_set_key = target_key
             return True
         except (ValueError, AttributeError, TypeError) as e:
             console.print(f"[red]✗ Invalid value for {key}: {e}[/red]")
             return False
+
+    def get_last_set_key(self) -> Optional[str]:
+        """Get the actual key name that was last set (for proper display)"""
+        return getattr(self, "_last_set_key", None)
 
     def _convert_option_value(self, key: str, value: Any) -> Any:
         """Convert option value to type"""

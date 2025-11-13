@@ -1,6 +1,14 @@
 # AWS Cloud Module Registry
 
 modules:
+  - id: aws_enumeration
+    name: "AWS Comprehensive Enumeration"
+    module_path: "cloud.aws.enum"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive AWS cloud enumeration orchestrator - combines all specialized resource modules (EC2, S3, IAM, Lambda, Databases, Containers, Route53, Amplify, Secrets)"
+
   - id: ec2_enumeration
     name: "EC2 Enumeration"
     module_path: "cloud.aws.ec2"
