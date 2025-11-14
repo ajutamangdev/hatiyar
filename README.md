@@ -36,7 +36,7 @@ It provides:
 
 Get Hatiyar running in seconds:
 
-> **📘 For the complete quick start guide, visit: [Quick Start Documentation](https://ajutamangdev.github.io/hatiyar/introduction/quick-start/)**
+> **For the complete quick start guide, visit: [Quick Start Documentation](https://ajutamangdev.github.io/hatiyar/introduction/quick-start/)**
 
 ### Prerequisites
 

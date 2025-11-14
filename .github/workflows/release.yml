@@ -2,30 +2,16 @@ name: Release Hatiyar to PyPI
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
 
 on:
   push:
     branches:
-      - main  # Only release from main branch
-  workflow_dispatch:  # Allow manual trigger
-    inputs:
-      release_type:
-        description: 'Release type (leave empty for auto)'
-        required: false
-        type: choice
-        options:
-          - '*'
-          - patch
-          - minor
-          - major
+      - main
 
 jobs:
   release:
-    name: Semantic Release
+    name: Build and Publish to PyPI
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
     
     steps:
       - name: Checkout code
@@ -33,6 +19,62 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-increment version
+        id: version_bump
+        run: |
+          # Get current version from pyproject.toml
+          CURRENT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Check if this version was already released to PyPI
+          PYPI_CHECK=$(curl -s https://pypi.org/pypi/hatiyar/json | grep -o "\"$CURRENT_VERSION\"" || echo "not_found")
+          
+          if [ "$PYPI_CHECK" = "not_found" ]; then
+            # Version is new, use it as-is
+            NEW_VERSION="$CURRENT_VERSION"
+            echo "✅ Using version $NEW_VERSION (not on PyPI yet)"
+          else
+            # Version exists on PyPI, determine bump type from commit message
+            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            
+            echo "⚠️ Version $CURRENT_VERSION exists on PyPI"
+            echo "📝 Commit message: $COMMIT_MSG"
+            
+            # Determine version bump based on conventional commits
+            if echo "$COMMIT_MSG" | grep -qiE "^BREAKING CHANGE:|^[a-z]+(\([a-z]+\))?!:"; then
+              # Major version bump (breaking changes)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              BUMP_TYPE="MAJOR (breaking change)"
+            elif echo "$COMMIT_MSG" | grep -qiE "^feat(\([a-z]+\))?:"; then
+              # Minor version bump (new features)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              BUMP_TYPE="MINOR (new feature)"
+            else
+              # Patch version bump (fixes, chores, docs, etc.)
+              PATCH=$((PATCH + 1))
+              BUMP_TYPE="PATCH (fix/chore)"
+            fi
+            
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "Auto-bumping to $NEW_VERSION ($BUMP_TYPE)"
+            
+            # Update pyproject.toml with new version
+            sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+            
+            # Commit the version bump
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add pyproject.toml
+            git commit -m "chore: auto-bump version to $NEW_VERSION [skip ci]"
+            git push
+          fi
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,30 +87,12 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: |
-          uv sync --all-extras
+        run: uv sync --all-extras
 
-      - name: Build with uv
+      - name: Build package
         run: uv build --no-sources
 
       - name: Publish to PyPI
-        if: github.ref == 'refs/heads/main'
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: uv publish
-
-      - name: Run latest-tag
-        uses: EndBug/latest-tag@latest
-        with:
-          # You can change the name of the tag or branch with this input.
-          # Default: 'latest'
-          ref: latest
-          # If a description is provided, the action will use it to create an annotated tag. If none is given, the action will create a lightweight tag.
-          # Default: ''
-          description: The latest release.
-          # Force-update a branch instead of using a tag.
-          # Default: false
-          force-branch: false
-          # Directory to use when executing git commands
-          # Default: '${{ github.workspace }}'
-          git-directory: '${{ github.workspace }}'
