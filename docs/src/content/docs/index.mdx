@@ -1,0 +1,92 @@
+---
+title: Welcome to Hatiyar
+description: Security toolkit designed for penetration testing, vulnerability assessment, and security research.
+template: splash
+hero:
+  tagline: Security toolkit designed for penetration testing.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Get Started in 5 Minutes
+      link: /hatiyar/introduction/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/ajutamangdev/hatiyar
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+
+<div style="max-width: 800px; margin: 0 auto; text-align: center;">
+## Live Demo
+
+![hatiyar demo](../../assets/hatiyar.gif)
+
+</div>
+
+---
+
+## Quick Start Guides
+
+<CardGrid>
+  <Card title="Install via pip" icon="rocket">
+    Get started in seconds with PyPI:
+    ```bash
+    pip install hatiyar
+    ```
+  </Card>
+  <Card title="5-Minute Quickstart" icon="document">
+    Run your first exploit and understand core concepts.
+    
+    **Time:** 5 minutes  
+    [Start Tutorial →](/hatiyar/introduction/quick-start/)
+  </Card>
+</CardGrid>
+
+---
+
+## Choose Your Workflow
+
+<CardGrid>
+
+  <Card title="Interactive Hunter" icon="open-book">
+    **Metasploit-like shell experience**
+    
+    ```bash
+    hatiyar
+    hatiyar> ls cve
+    hatiyar> use cve.cve_XXXX_XXXX
+    hatiyar> set RHOST target
+    hatiyar> set RPORT 80
+    hatiyar> run
+    ```
+    
+    Perfect for: Live engagements, exploration, learning
+  </Card>
+
+  <Card title="CLI Power User" icon="rocket">
+    **One-liners for rapid testing**
+    
+    ```bash
+    hatiyar run CVE-XXXX-XXXX \
+      --set RHOST=target.com \
+      --set RPORT=80
+    ```
+    
+    Perfect for: Automation, scripting, CI/CD pipelines
+  </Card>
+</CardGrid>
+---
+
+## Community & Support
+
+- **[GitHub Repository](https://github.com/ajutamangdev/hatiyar)** - Source code, issues, discussions
+- **[Issue Tracker](https://github.com/ajutamangdev/hatiyar/issues)** - Report bugs, request features
+- **[Discussions](https://github.com/ajutamangdev/hatiyar/discussions)** - Ask questions, share knowledge
+- **[Discord Community](https://discord.gg/V9HghE8V7M)** - Join our community server
+
+---
+

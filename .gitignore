@@ -1,0 +1,11 @@
+.venv/
+dist/
+hatiyar.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log   
+
+tmp/
+*.json

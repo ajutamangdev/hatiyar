@@ -1,0 +1,9 @@
+# Platform Module Registry
+
+modules:
+  - id: k8s
+    name: "Kubernetes"
+    module_path: "platforms.k8s"
+    category: "platforms"
+    description: "Kubernetes security modules"
+    is_namespace: true

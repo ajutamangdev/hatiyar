@@ -1,0 +1,64 @@
+[project]
+name = "hatiyar"
+version = "0.0.1"
+description = "security toolkit designed for penetration testing, vulnerability assessment, and security research."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "boto3>=1.7.84",
+    "boto3-stubs>=1.40.59",
+    "fastapi>=0.119.1",
+    "jinja2>=3.1.6",
+    "pluggy>=1.6.0",
+    "prompt-toolkit>=3.0.52",
+    "pydantic>=2.12.0",
+    "pyyaml>=6.0.1",
+    "requests>=2.32.0",
+    "rich>=14.2.0",
+    "typer>=0.12.0",
+    "uvicorn>=0.38.0",
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "types-pyyaml>=6.0.12.20250915",
+    "types-requests>=2.32.4.20250913",
+    "ruff>=0.8.0",
+    "kubernetes>=34.1.0",
+    "docker>=7.1.0",
+]
+
+
+[project.scripts]
+hatiyar = "hatiyar.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hatiyar*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["--verbose"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+]
+
+[dependency-groups]
+dev = [
+    "moto>=1.3.6",
+]

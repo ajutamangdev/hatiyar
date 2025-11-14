@@ -1,0 +1,82 @@
+# AWS Cloud Module Registry
+
+modules:
+  - id: aws_enumeration
+    name: "AWS Comprehensive Enumeration"
+    module_path: "cloud.aws.enum"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive AWS cloud enumeration orchestrator - combines all specialized resource modules (EC2, S3, IAM, Lambda, Databases, Containers, Route53, Amplify, Secrets)"
+
+  - id: ec2_enumeration
+    name: "EC2 Enumeration"
+    module_path: "cloud.aws.ec2"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive EC2 enumeration including instances, security groups, volumes, snapshots, and AMIs with security assessment"
+  
+  - id: s3_enumeration
+    name: "S3 Enumeration"
+    module_path: "cloud.aws.s3"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive S3 bucket enumeration including encryption, versioning, policies, ACLs, and security configuration"
+  
+  - id: secrets_enumeration
+    name: "Secrets Manager & Parameter Store Enumeration"
+    module_path: "cloud.aws.secrets"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Enumerate AWS Secrets Manager secrets and Systems Manager Parameter Store parameters with rotation and security analysis"
+  
+  - id: iam_enumeration
+    name: "IAM Enumeration"
+    module_path: "cloud.aws.iam"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "Comprehensive IAM enumeration including users, roles, groups, policies, MFA status, and security findings"
+  
+  - id: lambda_enumeration
+    name: "Lambda Enumeration"
+    module_path: "cloud.aws.lambda"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Lambda function enumeration including layers, event sources, deprecated runtimes, and security analysis"
+  
+  - id: database_enumeration
+    name: "Database Enumeration"
+    module_path: "cloud.aws.database"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS database enumeration including RDS, Aurora, DynamoDB, ElastiCache with encryption and backup analysis"
+  
+  - id: container_enumeration
+    name: "Container Services Enumeration"
+    module_path: "cloud.aws.container"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS container services enumeration including ECS, EKS, ECR with image scanning and security analysis"
+  
+  - id: route53_enumeration
+    name: "Route53 DNS Enumeration"
+    module_path: "cloud.aws.route53"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Route53 DNS enumeration including hosted zones, records, health checks, DNSSEC, and domain registrations"
+  
+  - id: amplify_enumeration
+    name: "Amplify Enumeration"
+    module_path: "cloud.aws.amplify"
+    category: "cloud"
+    subcategory: "aws"
+    cloud_provider: "AWS"
+    description: "AWS Amplify application enumeration including branches, domains, webhooks, CI/CD, and environment variables"

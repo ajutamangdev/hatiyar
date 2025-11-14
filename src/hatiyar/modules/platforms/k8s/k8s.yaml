@@ -1,0 +1,42 @@
+# Kubernetes Platform Module Registry
+
+modules:
+  - id: k8s_enum
+    name: "K8s Enum"
+    module_path: "platforms.k8s.enum"
+    category: "platforms"
+    subcategory: "k8s"
+    platform: "Kubernetes"
+    description: "Comprehensive cluster enumeration orchestrator (uses specialized modules)"
+  
+  - id: k8s_pods
+    name: "K8s Pods"
+    module_path: "platforms.k8s.pods"
+    category: "platforms"
+    subcategory: "k8s"
+    platform: "Kubernetes"
+    description: "Kubernetes pod-specific enumeration: containers, volumes, security contexts, resources"
+  
+  - id: k8s_secrets
+    name: "K8s Secrets"
+    module_path: "platforms.k8s.secrets"
+    category: "platforms"
+    subcategory: "k8s"
+    platform: "Kubernetes"
+    description: "Kubernetes secrets enumeration and extraction"
+  
+  - id: k8s_volumes
+    name: "K8s Volumes"
+    module_path: "platforms.k8s.volumes"
+    category: "platforms"
+    subcategory: "k8s"
+    platform: "Kubernetes"
+    description: "Kubernetes storage enumeration: PVs, PVCs, StorageClasses"
+  
+  - id: k8s_namespaces
+    name: "K8s Namespaces"
+    module_path: "platforms.k8s.namespaces"
+    category: "platforms"
+    subcategory: "k8s"
+    platform: "Kubernetes"
+    description: "Kubernetes namespace enumeration with resource quotas and limits"

@@ -1,0 +1,74 @@
+name: Release Hatiyar to PyPI
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - main  # Only release from main branch
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      release_type:
+        description: 'Release type (leave empty for auto)'
+        required: false
+        type: choice
+        options:
+          - '*'
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras
+
+      - name: Build with uv
+        run: uv build --no-sources
+
+      - name: Publish to PyPI
+        if: github.ref == 'refs/heads/main'
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: uv publish
+
+      - name: Run latest-tag
+        uses: EndBug/latest-tag@latest
+        with:
+          # You can change the name of the tag or branch with this input.
+          # Default: 'latest'
+          ref: latest
+          # If a description is provided, the action will use it to create an annotated tag. If none is given, the action will create a lightweight tag.
+          # Default: ''
+          description: The latest release.
+          # Force-update a branch instead of using a tag.
+          # Default: false
+          force-branch: false
+          # Directory to use when executing git commands
+          # Default: '${{ github.workspace }}'
+          git-directory: '${{ github.workspace }}'

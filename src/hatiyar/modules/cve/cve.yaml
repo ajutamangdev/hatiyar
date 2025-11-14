@@ -1,0 +1,16 @@
+# CVE Module Registry
+
+modules:
+  - id: CVE-2021-43798
+    name: "Grafana Directory Traversal"
+    module_path: "cve.cve_2021_43798"
+    category: "cve"
+    cve_id: "CVE-2021-43798"
+    description: "Exploit CVE-2021-43798 to read arbitrary files via plugin path traversal"
+
+  - id: CVE-2021-42013
+    name: "Apache HTTP Server Path Traversal"
+    module_path: "cve.cve_2021_42013"
+    category: "cve"
+    cve_id: "CVE-2021-42013"
+    description: "Exploit CVE-2021-42013 to read arbitrary files via path traversal in Apache 2.4.49-2.4.50"
