@@ -36,6 +36,8 @@ It provides:
 
 Get Hatiyar running in seconds:
 
+> **📘 For the complete quick start guide, visit: [Quick Start Documentation](https://ajutamangdev.github.io/hatiyar/introduction/quick-start/)**
+
 ### Prerequisites
 
 **For pip installation (recommended):**
@@ -101,7 +103,9 @@ make shell           # Interactive shell
 make serve           # Web server (coming soon)
 ```
 
-> **For detailed installation instructions, Docker setup, and platform-specific guides, see the [Full Installation Guide](https://ajutamangdev.github.io/hatiyar/introduction/installation/).**
+> **For detailed installation instructions, Docker setup, and platform-specific guides, see:**
+> - **[Quick Start Guide](https://ajutamangdev.github.io/hatiyar/introduction/quick-start/)** - Get up and running quickly
+> - **[Full Installation Guide](https://ajutamangdev.github.io/hatiyar/introduction/installation/)** - Detailed setup for all platforms
 
 ---
 
