@@ -86,6 +86,7 @@ if TYPER_AVAILABLE:
         add_completion=False,
         rich_markup_mode="rich",
         no_args_is_help=True,  # Show help when no command is provided
+        context_settings={"help_option_names": ["-h", "--help"]},  # Enable -h alias
     )
     console = Console()
 
