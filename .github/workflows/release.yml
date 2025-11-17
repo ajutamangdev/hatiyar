@@ -12,7 +12,7 @@ jobs:
   release:
     name: Build and Publish to PyPI
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -23,69 +23,134 @@ jobs:
       - name: Auto-increment version
         id: version_bump
         run: |
-          # Pull latest changes first (in case version was manually updated)
-          git pull --rebase origin main || true
-          
+          # Get commit message to determine bump type
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          echo "Commit message: $COMMIT_MSG"
+
+          # Skip auto-bump if commit contains [skip ci] or is a version bump commit
+          if echo "$COMMIT_MSG" | grep -qiE "\[skip ci\]|^chore: auto-bump version"; then
+            echo "Skipping version bump (ci skip or auto-bump commit)"
+            CURRENT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           # Get current version from pyproject.toml
           CURRENT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
           echo "Current version in pyproject.toml: $CURRENT_VERSION"
-          
-          # Check if this version was already released to PyPI
-          PYPI_CHECK=$(curl -s https://pypi.org/pypi/hatiyar/json | grep -o "\"$CURRENT_VERSION\"" || echo "not_found")
-          
-          if [ "$PYPI_CHECK" = "not_found" ]; then
-            # Version is new, use it as-is
+
+          # Get latest version from PyPI
+          PYPI_VERSION=$(curl -s https://pypi.org/pypi/hatiyar/json | grep -Po '"version":"\K[^"]*' | head -1)
+
+          if [ -z "$PYPI_VERSION" ] || [ "$PYPI_VERSION" = "null" ]; then
+            # No version on PyPI yet, use version from pyproject.toml
+            echo "No version on PyPI yet, using pyproject.toml version: $CURRENT_VERSION"
             NEW_VERSION="$CURRENT_VERSION"
-            echo "Using version $NEW_VERSION (not found on PyPI, will publish)"
           else
-            # Version exists on PyPI, determine bump type from commit message
-            COMMIT_MSG="${{ github.event.head_commit.message }}"
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            echo "Latest version on PyPI: $PYPI_VERSION"
             
-            echo "Version $CURRENT_VERSION already exists on PyPI"
-            echo "Commit message: $COMMIT_MSG"
-            
-            # Determine version bump based on conventional commits
-            if echo "$COMMIT_MSG" | grep -qiE "^BREAKING CHANGE:|^[a-z]+(\([a-z]+\))?!:"; then
-              # Major version bump (breaking changes)
-              MAJOR=$((MAJOR + 1))
-              MINOR=0
-              PATCH=0
-              BUMP_TYPE="MAJOR (breaking change)"
-            elif echo "$COMMIT_MSG" | grep -qiE "^feat(\([a-z]+\))?:"; then
-              # Minor version bump (new features)
-              MINOR=$((MINOR + 1))
-              PATCH=0
-              BUMP_TYPE="MINOR (new feature)"
+            # Compare versions: if manual version > PyPI version, use manual
+            if [ "$CURRENT_VERSION" != "$PYPI_VERSION" ]; then
+              # Simple version comparison
+              IFS='.' read -r C_MAJOR C_MINOR C_PATCH <<< "$CURRENT_VERSION"
+              IFS='.' read -r P_MAJOR P_MINOR P_PATCH <<< "$PYPI_VERSION"
+              
+              if [ "$C_MAJOR" -gt "$P_MAJOR" ] || \
+                 ([ "$C_MAJOR" -eq "$P_MAJOR" ] && [ "$C_MINOR" -gt "$P_MINOR" ]) || \
+                 ([ "$C_MAJOR" -eq "$P_MAJOR" ] && [ "$C_MINOR" -eq "$P_MINOR" ] && [ "$C_PATCH" -gt "$P_PATCH" ]); then
+                echo "Manual version bump detected: $PYPI_VERSION → $CURRENT_VERSION"
+                echo "   Using manual version (no auto-bump)"
+                NEW_VERSION="$CURRENT_VERSION"
+              else
+                # Auto-bump from PyPI version
+                IFS='.' read -r MAJOR MINOR PATCH <<< "$PYPI_VERSION"
+                
+                # Determine version bump based on conventional commits
+                if echo "$COMMIT_MSG" | grep -qiE "^BREAKING CHANGE:|^[a-z]+(\([a-z]+\))?!:"; then
+                  # Breaking changes → MAJOR bump
+                  MAJOR=$((MAJOR + 1))
+                  MINOR=0
+                  PATCH=0
+                  BUMP_TYPE="MAJOR (breaking change)"
+                elif echo "$COMMIT_MSG" | grep -qiE "^feat(\([a-z]+\))?:"; then
+                  # New features → MINOR bump
+                  MINOR=$((MINOR + 1))
+                  PATCH=0
+                  BUMP_TYPE="MINOR (feat)"
+                elif echo "$COMMIT_MSG" | grep -qiE "^(fix|perf|refactor)(\([a-z]+\))?:"; then
+                  # Bug fixes, performance, refactoring → PATCH bump
+                  PATCH=$((PATCH + 1))
+                  BUMP_TYPE="PATCH (fix/perf/refactor)"
+                elif echo "$COMMIT_MSG" | grep -qiE "^(docs|style|test|build|ci|chore)(\([a-z]+\))?:"; then
+                  # Docs, style, tests, build, ci, chore → PATCH bump
+                  PATCH=$((PATCH + 1))
+                  BUMP_TYPE="PATCH (docs/style/test/build/ci/chore)"
+                else
+                  # Unknown commit type → PATCH bump
+                  PATCH=$((PATCH + 1))
+                  BUMP_TYPE="PATCH (other)"
+                fi
+                
+                NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+                echo "Auto-bumping: $PYPI_VERSION → $NEW_VERSION ($BUMP_TYPE)"
+                
+                # Update pyproject.toml with new version
+                sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+                
+                # Commit and push the version bump
+                git config user.name "github-actions[bot]"
+                git config user.email "github-actions[bot]@users.noreply.github.com"
+                git add pyproject.toml
+                git commit -m "chore: auto-bump version to $NEW_VERSION [skip ci]"
+                git push
+              fi
             else
-              # Patch version bump (fixes, chores, docs, etc.)
-              PATCH=$((PATCH + 1))
-              BUMP_TYPE="PATCH (fix/chore)"
+              # Same version in both, need to bump
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$PYPI_VERSION"
+              
+              if echo "$COMMIT_MSG" | grep -qiE "^BREAKING CHANGE:|^[a-z]+(\([a-z]+\))?!:"; then
+                # Breaking changes → MAJOR bump
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                BUMP_TYPE="MAJOR (breaking change)"
+              elif echo "$COMMIT_MSG" | grep -qiE "^feat(\([a-z]+\))?:"; then
+                # New features → MINOR bump
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                BUMP_TYPE="MINOR (feat)"
+              elif echo "$COMMIT_MSG" | grep -qiE "^(fix|perf|refactor)(\([a-z]+\))?:"; then
+                # Bug fixes, performance, refactoring → PATCH bump
+                PATCH=$((PATCH + 1))
+                BUMP_TYPE="PATCH (fix/perf/refactor)"
+              elif echo "$COMMIT_MSG" | grep -qiE "^(docs|style|test|build|ci|chore)(\([a-z]+\))?:"; then
+                # Docs, style, tests, build, ci, chore → PATCH bump
+                PATCH=$((PATCH + 1))
+                BUMP_TYPE="PATCH (docs/style/test/build/ci/chore)"
+              else
+                # Unknown commit type → PATCH bump
+                PATCH=$((PATCH + 1))
+                BUMP_TYPE="PATCH (other)"
+              fi
+              
+              NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+              echo "Auto-bumping: $PYPI_VERSION → $NEW_VERSION ($BUMP_TYPE)"
+              
+              sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git add pyproject.toml
+              git commit -m "chore: auto-bump version to $NEW_VERSION [skip ci]"
+              git push
             fi
-            
-            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-            echo "Auto-bumping to $NEW_VERSION ($BUMP_TYPE)"
-            
-            # Update pyproject.toml with new version
-            sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
-            
-            # Commit and push the version bump
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add pyproject.toml
-            git commit -m "chore: auto-bump version to $NEW_VERSION [skip ci]"
-            
-            # Pull again before pushing to avoid conflicts
-            git pull --rebase origin main || true
-            git push
           fi
-          
+
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
