@@ -89,7 +89,6 @@ def show_help(console) -> None:
 
 def clear_screen(console) -> None:
     console.clear()
-    console.print("[bold green]hatiyar[/bold green] [dim]ready[/dim]")
     console.print("[dim]Type [cyan]help[/cyan] or press TAB[/dim]\n")
 
 

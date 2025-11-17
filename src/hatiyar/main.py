@@ -107,6 +107,28 @@ if TYPER_AVAILABLE:
     @cli.command(name="shell")
     def shell() -> None:
         """Start interactive shell with tab completion"""
+        banner = r"""
+ _    _       _   _                  
+| |  | |     | | (_)                 
+| |__| | __ _| |_ _ _   _  __ _ _ __ 
+|  __  |/ _` | __| | | | |/ _` | '__|
+| |  | | (_| | |_| | |_| | (_| | |   
+|_|  |_|\__,_|\__|_|\__, |\__,_|_|   
+                     __/ |           
+                    |___/             
+"""
+        console.print(f"[bold red]{banner}[/bold red]")
+
+        # Show metadata centered
+        try:
+            metadata_version = f"Version {__version__}"
+            console.print(f"[dim]{metadata_version.center(40)}[/dim]")
+        except Exception:
+            metadata = f"Version {__version__}"
+            console.print(f"[dim]{metadata.center(40)}[/dim]")
+
+        console.print()
+
         try:
             from hatiyar.cli.shell import start_shell  # noqa: E402
         except Exception as e:

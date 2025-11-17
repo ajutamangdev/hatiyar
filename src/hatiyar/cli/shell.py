@@ -33,10 +33,7 @@ COMMANDS = [
     "quit",
 ]
 
-WELCOME_MESSAGE = (
-    "[bold green]Welcome to Hatiyar![/bold green]\n"
-    "Type [bold cyan]help[/bold cyan] for available commands or [cyan]ls[/cyan] to explore.\n"
-)
+WELCOME_MESSAGE = "[dim]Type[/dim] [cyan bold]help[/cyan bold] [dim]for available commands or[/dim] [cyan bold]ls[/cyan bold] [dim]to explore modules[/dim]"
 
 EXIT_COMMANDS = ["exit", "quit", "q"]
 

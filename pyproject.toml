@@ -25,6 +25,7 @@ dependencies = [
     "ruff>=0.8.0",
     "kubernetes>=34.1.0",
     "docker>=7.1.0",
+    "types-jmespath>=1.0.2.20250809",
 ]
 
 
