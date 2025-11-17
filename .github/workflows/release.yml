@@ -23,9 +23,12 @@ jobs:
       - name: Auto-increment version
         id: version_bump
         run: |
+          # Pull latest changes first (in case version was manually updated)
+          git pull --rebase origin main || true
+          
           # Get current version from pyproject.toml
           CURRENT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
-          echo "Current version: $CURRENT_VERSION"
+          echo "Current version in pyproject.toml: $CURRENT_VERSION"
           
           # Check if this version was already released to PyPI
           PYPI_CHECK=$(curl -s https://pypi.org/pypi/hatiyar/json | grep -o "\"$CURRENT_VERSION\"" || echo "not_found")
@@ -33,14 +36,14 @@ jobs:
           if [ "$PYPI_CHECK" = "not_found" ]; then
             # Version is new, use it as-is
             NEW_VERSION="$CURRENT_VERSION"
-            echo "✅ Using version $NEW_VERSION (not on PyPI yet)"
+            echo "Using version $NEW_VERSION (not found on PyPI, will publish)"
           else
             # Version exists on PyPI, determine bump type from commit message
             COMMIT_MSG="${{ github.event.head_commit.message }}"
             IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
             
-            echo "⚠️ Version $CURRENT_VERSION exists on PyPI"
-            echo "📝 Commit message: $COMMIT_MSG"
+            echo "Version $CURRENT_VERSION already exists on PyPI"
+            echo "Commit message: $COMMIT_MSG"
             
             # Determine version bump based on conventional commits
             if echo "$COMMIT_MSG" | grep -qiE "^BREAKING CHANGE:|^[a-z]+(\([a-z]+\))?!:"; then
@@ -66,11 +69,14 @@ jobs:
             # Update pyproject.toml with new version
             sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
             
-            # Commit the version bump
+            # Commit and push the version bump
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add pyproject.toml
             git commit -m "chore: auto-bump version to $NEW_VERSION [skip ci]"
+            
+            # Pull again before pushing to avoid conflicts
+            git pull --rebase origin main || true
             git push
           fi
           
