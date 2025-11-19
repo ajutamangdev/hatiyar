@@ -208,19 +208,31 @@ if TYPER_AVAILABLE:
             console.print(f"[yellow]✗ No results for:[/yellow] {query}")
             return
 
-        table = Table(title=f"[bold]Search:[/bold] {query}", title_style="cyan")
+        # Check if any results have CVE IDs
+        has_cve = any(mod.get("cve_id") or mod.get("cve") for mod in results)
+
+        # Build table structure
+        table = Table(title=f"[bold]Results:[/bold] {query}", title_style="cyan")
         table.add_column("#", width=4, justify="right", style="dim")
         table.add_column("Path", style="green", width=25)
         table.add_column("Name", style="cyan bold")
-        table.add_column("CVE", style="red")
 
+        if has_cve:
+            table.add_column("CVE", style="red")
+
+        # Populate table rows
         for idx, mod in enumerate(results, 1):
-            table.add_row(
+            row_data = [
                 str(idx),
                 mod.get("path", "N/A"),
                 mod.get("name", "N/A"),
-                mod.get("cve_id", "-"),
-            )
+            ]
+
+            if has_cve:
+                cve_id = mod.get("cve_id") or mod.get("cve", "-")
+                row_data.append(cve_id)
+
+            table.add_row(*row_data)
 
         console.print(table)
         console.print(f"\n[dim]✓ Found {len(results)} modules[/dim]\n")

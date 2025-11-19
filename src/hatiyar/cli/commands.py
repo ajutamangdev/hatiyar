@@ -479,18 +479,20 @@ def handle_show(args: List[str], console, session: CLISession) -> None:
     if not args:
         console.print("[red]Usage: show <what>[/red]")
         console.print(
-            "[dim]Available: [cyan]show options[/cyan], [cyan]show global[/cyan][/dim]"
+            "[dim]Available: [cyan]show options[/cyan], [cyan]show operations[/cyan], [cyan]show global[/cyan][/dim]"
         )
         return
 
     if args[0] == "options":
         show_module_options(console, session)
+    elif args[0] == "operations":
+        show_module_operations(console, session)
     elif args[0] == "global":
         show_global_options(console, session)
     else:
         console.print(f"[red]Unknown show target:[/red] {args[0]}")
         console.print(
-            "[dim]Available: [cyan]show options[/cyan], [cyan]show global[/cyan][/dim]"
+            "[dim]Available: [cyan]show options[/cyan], [cyan]show operations[/cyan], [cyan]show global[/cyan][/dim]"
         )
 
 
@@ -568,6 +570,17 @@ def show_module_options(console, session: CLISession) -> None:
         console.print(
             "[dim]Options marked 'global' are inherited from global settings[/dim]"
         )
+
+
+def show_module_operations(console, session: CLISession) -> None:
+    if not session.active_module:
+        console.print("[red]No module loaded.[/red]")
+        return
+
+    if hasattr(session.active_module, "show_operations"):
+        session.active_module.show_operations()
+    else:
+        console.print("[dim]This module does not have operations to display[/dim]")
 
 
 def handle_run(console, session: CLISession) -> None:
