@@ -382,7 +382,7 @@ class ModuleManager:
         query_lower = query.lower()
         results = []
 
-        search_fields = ["name", "description", "cve", "category", "author"]
+        search_fields = ["path", "name", "description", "cve", "category", "author"]
 
         for metadata in self.metadata_cache.values():
             if any(
